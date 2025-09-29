@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điểm Danh Lớp CT2901</title>
+    <style>
+        /* Phong cách tổng thể lấy cảm hứng từ ảnh: Tông vàng nhạt, chấm bi nền, thẻ bo tròn, biểu tượng vui vẻ */
+        body {
+            background-color: #FFD54F; /* Màu vàng nhạt như nền ảnh */
+            background-image: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
+            background-size: 10px 10px; /* Chấm bi */
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #FFFDE7; /* Màu kem nhạt như thẻ trong ảnh */
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .student-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .student-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .student-msv {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            accent-color: #4CAF50; /* Màu xanh tick như ảnh */
+        }
+
+        label {
+            font-size: 18px;
+        }
+
+        button {
+            background-color: #FFEB3B; /* Màu vàng nút như "I'M DONE!" */
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #FDD835;
+        }
+
+        .summary {
+            display: none;
+            text-align: left;
+        }
+
+        .summary h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #FFE082;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 5px;
+        }
+
+        /* Emoji vui vẻ để giống phong cách ảnh */
+        .emoji {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Điểm Danh Lớp CT2901 <span class="emoji">📋</span></h1>
+        <div id="attendance-form">
+            <div class="student-card">
+                <div class="student-name" id="student-name"></div>
+                <div class="student-msv" id="student-msv"></div>
+            </div>
+            <div class="checkbox">
+                <input type="checkbox" id="present">
+                <label for="present">Có mặt</label>
+            </div>
+            <button id="next-btn">Tiếp Theo</button>
+        </div>
+        <div class="summary" id="summary">
+            <h2>Kết Quả Điểm Danh <span class="emoji">✅</span></h2>
+            <p>Sĩ số lớp: 44</p>
+            <p>Số vắng: <span id="absent-count"></span></p>
+            <h3>Danh sách vắng:</h3>
+            <ul id="absent-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Danh sách sinh viên từ file Excel lớp CT2901
+        const students = [
+            { msv: '2512101028', name: 'Nguyễn Kim Bình An' },
+            { msv: '2512101077', name: 'Phạm Diệp Anh' },
+            { msv: '2512101075', name: 'Lê Việt Anh' },
+            { msv: '2512101101', name: 'Ngô Xuân Bảo' },
+            { msv: '2512101091', name: 'Nguyễn Đức Chung' },
+            { msv: '2512101086', name: 'Nguyễn Nhật Duy' },
+            { msv: '2512101020', name: 'Nguyễn Tấn Dũng' },
+            { msv: '2512101099', name: 'Bùi Văn Dũng' },
+            { msv: '2512101047', name: 'Cao Đắc Đạt' },
+            { msv: '2512101008', name: 'Phạm Thành Đạt' },
+            { msv: '2512101085', name: 'Nguyễn Ngọc Đức' },
+            { msv: '2512101113', name: 'Hoàng Thị Hân' },
+            { msv: '2512101022', name: 'Phạm Văn Hân' },
+            { msv: '2512101025', name: 'Nguyễn Chí Hiếu' },
+            { msv: '2512101007', name: 'Hà Đức Hiếu' },
+            { msv: '2512101081', name: 'Nguyễn Minh Hiếu' },
+            { msv: '2512101042', name: 'Nguyễn Quang Hoàng' },
+            { msv: '2512101037', name: 'Nguyễn Văn Hoàng' },
+            { msv: '2512101126', name: 'Nguyễn Thị Hồng' },
+            { msv: '2512101119', name: 'Nguyễn Văn Hùng' },
+            { msv: '2512101128', name: 'Nguyễn Văn Huy' },
+            { msv: '2512101034', name: 'Vũ Minh Huy' },
+            { msv: '2512101029', name: 'Đoàn Vũ Huy' },
+            { msv: '2512101087', name: 'Nguyễn Việt Hưng' },
+            { msv: '2512101010', name: 'Nguyễn Tiến Khang' },
+            { msv: '2512101092', name: 'Trần Khánh Ly' },
+            { msv: '2512101069', name: 'Lê Minh' },
+            { msv: '2512101019', name: 'Lê Đức Minh' },
+            { msv: '2512101073', name: 'Nguyễn Phú Minh' },
+            { msv: '2512101125', name: 'Nguyễn Thị Ngọc Minh' },
+            { msv: '2512101095', name: 'Phạm Trung Nghĩa' },
+            { msv: '2512101011', name: 'Đỗ Khánh Nguyên' },
+            { msv: '2512101112', name: 'Hoàng Thị Nhiên' },
+            { msv: '2512101089', name: 'Vũ Đức Phong' },
+            { msv: '2512101083', name: 'Lê Thế Hoàng Phong' },
+            { msv: '2512101110', name: 'Nguyễn Mai Phương' },
+            { msv: '2512101084', name: 'Nguyễn Anh Quân' },
+            { msv: '2512101013', name: 'Hà Công Quyền' },
+            { msv: '2512101065', name: 'Hoàng Thái Sơn' },
+            { msv: '2512101055', name: 'Nguyễn Công Tiến' },
+            { msv: '2512101004', name: 'Nguyễn Văn Trường' },
+            { msv: '2512101005', name: 'Tô Anh Tuấn' },
+            { msv: '2512101049', name: 'Đỗ Anh Tú' },
+            { msv: '2512101009', name: 'Nguyễn Quang Vinh' }
+        ];
+
+        let currentIndex = 0;
+        const attendance = new Array(students.length).fill(false); // Mảng theo dõi có mặt (true) hay vắng (false)
+
+        const studentNameEl = document.getElementById('student-name');
+        const studentMsvEl = document.getElementById('student-msv');
+        const presentCheckbox = document.getElementById('present');
+        const nextBtn = document.getElementById('next-btn');
+        const formEl = document.getElementById('attendance-form');
+        const summaryEl = document.getElementById('summary');
+        const absentCountEl = document.getElementById('absent-count');
+        const absentListEl = document.getElementById('absent-list');
+
+        function showStudent(index) {
+            if (index >= students.length) {
+                showSummary();
+                return;
+            }
+            studentNameEl.textContent = students[index].name;
+            studentMsvEl.textContent = `MSV: ${students[index].msv}`;
+            presentCheckbox.checked = false; // Reset checkbox
+        }
+
+        function showSummary() {
+            formEl.style.display = 'none';
+            summaryEl.style.display = 'block';
+
+            const absentStudents = students.filter((_, i) => !attendance[i]);
+            absentCountEl.textContent = absentStudents.length;
+
+            absentListEl.innerHTML = '';
+            absentStudents.forEach(student => {
+                const li = document.createElement('li');
+                li.textContent = `${student.name} (MSV: ${student.msv})`;
+                absentListEl.appendChild(li);
+            });
+        }
+
+        nextBtn.addEventListener('click', () => {
+            attendance[currentIndex] = presentCheckbox.checked;
+            currentIndex++;
+            showStudent(currentIndex);
+        });
+
+        // Bắt đầu với sinh viên đầu tiên
+        showStudent(0);
+    </script>
+</body>
+</html>
