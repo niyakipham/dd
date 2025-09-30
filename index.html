@@ -24,7 +24,7 @@
             background-color: #FFFDE7; /* Màu kem nhạt như thẻ trong ảnh */
             border-radius: 20px;
             padding: 20px;
-            max-width: 400px;
+            max-width: 600px; /* Tăng rộng để chứa thêm phần lịch sử */
             width: 100%;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-align: center;
@@ -34,6 +34,17 @@
             font-size: 24px;
             margin-bottom: 20px;
             color: #333;
+        }
+
+        .date-picker {
+            margin-bottom: 20px;
+        }
+
+        input[type="date"] {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
         }
 
         .student-card {
@@ -87,6 +98,7 @@
             color: #333;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin: 5px;
         }
 
         button:hover {
@@ -115,6 +127,29 @@
             margin-bottom: 5px;
         }
 
+        /* Phần lịch sử */
+        .history-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .history-days {
+            margin-top: 20px;
+        }
+
+        .history-detail {
+            display: none;
+            margin-top: 20px;
+        }
+
         /* Emoji vui vẻ để giống phong cách ảnh */
         .emoji {
             font-size: 30px;
@@ -125,7 +160,18 @@
 <body>
     <div class="container">
         <h1>Điểm Danh Lớp CT2901 <span class="emoji">📋</span></h1>
-        <div id="attendance-form">
+        
+        <!-- Phần chọn ngày và bắt đầu điểm danh -->
+        <div id="start-section">
+            <div class="date-picker">
+                <label for="attendance-date">Chọn ngày điểm danh:</label><br>
+                <input type="date" id="attendance-date">
+            </div>
+            <button id="start-btn">Bắt Đầu Điểm Danh</button>
+        </div>
+        
+        <!-- Phần điểm danh -->
+        <div id="attendance-form" style="display: none;">
             <div class="student-card">
                 <div class="student-name" id="student-name"></div>
                 <div class="student-msv" id="student-msv"></div>
@@ -136,17 +182,31 @@
             </div>
             <button id="next-btn">Tiếp Theo</button>
         </div>
-        <div class="summary" id="summary">
+        
+        <!-- Phần tổng kết ngay lập tức -->
+        <div class="summary" id="summary" style="display: none;">
             <h2>Kết Quả Điểm Danh <span class="emoji">✅</span></h2>
+            <p>Ngày: <span id="summary-date"></span></p>
             <p>Sĩ số lớp: 44</p>
             <p>Số vắng: <span id="absent-count"></span></p>
             <h3>Danh sách vắng:</h3>
             <ul id="absent-list"></ul>
+            <button id="back-to-start">Quay Lại</button>
+        </div>
+        
+        <!-- Phần xem lịch sử theo tháng/năm -->
+        <div class="history-section">
+            <h2>Xem Lịch Sử Điểm Danh <span class="emoji">🗓️</span></h2>
+            <label for="month-year">Chọn tháng/năm:</label><br>
+            <select id="month-year"></select>
+            <button id="view-history">Xem</button>
+            <div class="history-days" id="history-days"></div>
+            <div class="history-detail" id="history-detail"></div>
         </div>
     </div>
 
     <script>
-        // Danh sách sinh viên lớp CT2901 đã được cập nhật
+        // Danh sách sinh viên lớp CT2901
         const students = [
             { msv: '2512101028', name: 'Nguyễn Kim Bình An' },
             { msv: '2512101077', name: 'Phạm Diệp Anh' },
@@ -195,30 +255,99 @@
         ];
 
         let currentIndex = 0;
-        const attendance = new Array(students.length).fill(false); // Mảng theo dõi có mặt (true) hay vắng (false)
+        let attendance = new Array(students.length).fill(false);
+        let selectedDate = '';
 
+        const startSection = document.getElementById('start-section');
+        const dateInput = document.getElementById('attendance-date');
+        const startBtn = document.getElementById('start-btn');
+        const formEl = document.getElementById('attendance-form');
         const studentNameEl = document.getElementById('student-name');
         const studentMsvEl = document.getElementById('student-msv');
         const presentCheckbox = document.getElementById('present');
         const nextBtn = document.getElementById('next-btn');
-        const formEl = document.getElementById('attendance-form');
         const summaryEl = document.getElementById('summary');
+        const summaryDateEl = document.getElementById('summary-date');
         const absentCountEl = document.getElementById('absent-count');
         const absentListEl = document.getElementById('absent-list');
+        const backToStartBtn = document.getElementById('back-to-start');
+
+        // Phần lịch sử
+        const monthYearSelect = document.getElementById('month-year');
+        const viewHistoryBtn = document.getElementById('view-history');
+        const historyDaysEl = document.getElementById('history-days');
+        const historyDetailEl = document.getElementById('history-detail');
+
+        // Tải dữ liệu từ LocalStorage
+        function getAttendanceData() {
+            const data = localStorage.getItem('attendanceData');
+            return data ? JSON.parse(data) : {};
+        }
+
+        // Lưu dữ liệu vào LocalStorage
+        function saveAttendanceData(data) {
+            localStorage.setItem('attendanceData', JSON.stringify(data));
+        }
+
+        // Cập nhật select tháng/năm
+        function updateMonthYearSelect() {
+            const data = getAttendanceData();
+            const months = Object.keys(data).sort().reverse();
+            monthYearSelect.innerHTML = '';
+            months.forEach(month => {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month;
+                monthYearSelect.appendChild(option);
+            });
+        }
+
+        // Hiển thị danh sách ngày trong tháng
+        function showDaysInMonth(month) {
+            historyDaysEl.innerHTML = '<h3>Các ngày có điểm danh:</h3>';
+            const data = getAttendanceData();
+            const days = Object.keys(data[month] || {}).sort((a,b) => a - b);
+            if (days.length === 0) {
+                historyDaysEl.innerHTML += '<p>Không có dữ liệu.</p>';
+                return;
+            }
+            days.forEach(day => {
+                const btn = document.createElement('button');
+                btn.textContent = `Ngày ${day}`;
+                btn.onclick = () => showHistoryDetail(month, day);
+                historyDaysEl.appendChild(btn);
+            });
+        }
+
+        // Hiển thị chi tiết điểm danh ngày
+        function showHistoryDetail(month, day) {
+            historyDetailEl.style.display = 'block';
+            historyDetailEl.innerHTML = `<h3>Kết Quả Ngày ${day}/${month.replace('-', '/')}</h3>`;
+            const data = getAttendanceData();
+            const att = data[month][day];
+            const absentStudents = students.filter((_, i) => !att[i]);
+            historyDetailEl.innerHTML += `<p>Sĩ số lớp: 44</p><p>Số vắng: ${absentStudents.length}</p><h4>Danh sách vắng:</h4><ul>`;
+            absentStudents.forEach(student => {
+                historyDetailEl.innerHTML += `<li>${student.name} (MSV: ${student.msv})</li>`;
+            });
+            historyDetailEl.innerHTML += '</ul>';
+        }
 
         function showStudent(index) {
             if (index >= students.length) {
                 showSummary();
+                saveAttendance();
                 return;
             }
             studentNameEl.textContent = students[index].name;
             studentMsvEl.textContent = `MSV: ${students[index].msv}`;
-            presentCheckbox.checked = false; // Reset checkbox
+            presentCheckbox.checked = false;
         }
 
         function showSummary() {
             formEl.style.display = 'none';
             summaryEl.style.display = 'block';
+            summaryDateEl.textContent = selectedDate;
 
             const absentStudents = students.filter((_, i) => !attendance[i]);
             absentCountEl.textContent = absentStudents.length;
@@ -231,14 +360,53 @@
             });
         }
 
+        function saveAttendance() {
+            const data = getAttendanceData();
+            const [year, month, day] = selectedDate.split('-');
+            const monthKey = `${year}-${month}`;
+            if (!data[monthKey]) data[monthKey] = {};
+            data[monthKey][parseInt(day)] = attendance;
+            saveAttendanceData(data);
+            updateMonthYearSelect();
+        }
+
+        // Sự kiện
+        startBtn.addEventListener('click', () => {
+            selectedDate = dateInput.value;
+            if (!selectedDate) {
+                alert('Vui lòng chọn ngày!');
+                return;
+            }
+            startSection.style.display = 'none';
+            formEl.style.display = 'block';
+            currentIndex = 0;
+            attendance = new Array(students.length).fill(false);
+            showStudent(0);
+        });
+
         nextBtn.addEventListener('click', () => {
             attendance[currentIndex] = presentCheckbox.checked;
             currentIndex++;
             showStudent(currentIndex);
         });
 
-        // Bắt đầu với sinh viên đầu tiên
-        showStudent(0);
+        backToStartBtn.addEventListener('click', () => {
+            summaryEl.style.display = 'none';
+            startSection.style.display = 'block';
+        });
+
+        viewHistoryBtn.addEventListener('click', () => {
+            const month = monthYearSelect.value;
+            if (month) {
+                showDaysInMonth(month);
+                historyDetailEl.style.display = 'none';
+            }
+        });
+
+        // Khởi tạo
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+        updateMonthYearSelect();
     </script>
 </body>
 </html>
