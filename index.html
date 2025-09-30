@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Điểm Danh Lớp CT2901</title>
     <style>
+
         body {
-            background-color: #FFD54F; /* Màu vàng nhạt như nền ảnh */
+            background-color: #FFD54F; 
             background-image: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
-            background-size: 10px 10px; /* Chấm bi */
+            background-size: 10px 10px; 
             font-family: 'Arial', sans-serif;
             color: #333;
             display: flex;
@@ -21,10 +22,10 @@
         }
 
         .container {
-            background-color: #FFFDE7; /* Màu kem nhạt như thẻ trong ảnh */
+            background-color: #FFFDE7; 
             border-radius: 20px;
             padding: 20px;
-            max-width: 600px; /* Tăng rộng để chứa thêm phần lịch sử */
+            max-width: 600px; 
             width: 100%;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-align: center;
@@ -81,7 +82,7 @@
             width: 24px;
             height: 24px;
             margin-right: 10px;
-            accent-color: #4CAF50; /* Màu xanh tick như ảnh */
+            accent-color: #4CAF50; 
         }
 
         label {
@@ -89,7 +90,7 @@
         }
 
         button {
-            background-color: #FFEB3B; /* Màu vàng nút như "I'M DONE!" */
+            background-color: #FFEB3B; 
             border: none;
             border-radius: 10px;
             padding: 10px 20px;
@@ -149,8 +150,6 @@
             display: none;
             margin-top: 20px;
         }
-
-        /* Emoji vui vẻ để giống phong cách ảnh */
         .emoji {
             font-size: 30px;
             margin-bottom: 10px;
@@ -180,6 +179,7 @@
                 <input type="checkbox" id="present">
                 <label for="present">Có mặt</label>
             </div>
+            <button id="prev-btn" style="display: none;">Quay Lại</button>
             <button id="next-btn">Tiếp Theo</button>
         </div>
         
@@ -265,6 +265,7 @@
         const studentNameEl = document.getElementById('student-name');
         const studentMsvEl = document.getElementById('student-msv');
         const presentCheckbox = document.getElementById('present');
+        const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
         const summaryEl = document.getElementById('summary');
         const summaryDateEl = document.getElementById('summary-date');
@@ -334,6 +335,7 @@
         }
 
         function showStudent(index) {
+            if (index < 0) return; // Không quay lại dưới 0
             if (index >= students.length) {
                 showSummary();
                 saveAttendance();
@@ -341,7 +343,8 @@
             }
             studentNameEl.textContent = students[index].name;
             studentMsvEl.textContent = `MSV: ${students[index].msv}`;
-            presentCheckbox.checked = false;
+            presentCheckbox.checked = attendance[index]; // Tải trạng thái đã lưu
+            prevBtn.style.display = index > 0 ? 'inline-block' : 'none';
         }
 
         function showSummary() {
@@ -387,6 +390,12 @@
         nextBtn.addEventListener('click', () => {
             attendance[currentIndex] = presentCheckbox.checked;
             currentIndex++;
+            showStudent(currentIndex);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            attendance[currentIndex] = presentCheckbox.checked; // Lưu trạng thái hiện tại trước khi quay lại
+            currentIndex--;
             showStudent(currentIndex);
         });
 
