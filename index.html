@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Điểm Danh Lớp CT2901</title>
     <style>
-
+        
         body {
             background-color: #FFD54F; 
             background-image: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
@@ -37,11 +37,11 @@
             color: #333;
         }
 
-        .date-picker {
+        .date-picker, .period-picker {
             margin-bottom: 20px;
         }
 
-        input[type="date"] {
+        input[type="date"], select {
             padding: 10px;
             border-radius: 10px;
             border: 1px solid #ccc;
@@ -150,6 +150,8 @@
             display: none;
             margin-top: 20px;
         }
+
+        
         .emoji {
             font-size: 30px;
             margin-bottom: 10px;
@@ -160,11 +162,21 @@
     <div class="container">
         <h1>Điểm Danh Lớp CT2901 <span class="emoji">📋</span></h1>
         
-        <!-- Phần chọn ngày và bắt đầu điểm danh -->
+        <!-- Phần chọn ngày và tiết, bắt đầu điểm danh -->
         <div id="start-section">
             <div class="date-picker">
                 <label for="attendance-date">Chọn ngày điểm danh:</label><br>
                 <input type="date" id="attendance-date">
+            </div>
+            <div class="period-picker">
+                <label for="attendance-period">Chọn tiết học:</label><br>
+                <select id="attendance-period">
+                    <option value="1">Tiết 1</option>
+                    <option value="2">Tiết 2</option>
+                    <option value="3">Tiết 3</option>
+                    <option value="4">Tiết 4</option>
+                    <option value="5">Tiết 5</option>
+                </select>
             </div>
             <button id="start-btn">Bắt Đầu Điểm Danh</button>
         </div>
@@ -187,6 +199,7 @@
         <div class="summary" id="summary" style="display: none;">
             <h2>Kết Quả Điểm Danh <span class="emoji">✅</span></h2>
             <p>Ngày: <span id="summary-date"></span></p>
+            <p>Tiết: <span id="summary-period"></span></p>
             <p>Sĩ số lớp: 44</p>
             <p>Số vắng: <span id="absent-count"></span></p>
             <h3>Danh sách vắng:</h3>
@@ -257,9 +270,11 @@
         let currentIndex = 0;
         let attendance = new Array(students.length).fill(false);
         let selectedDate = '';
+        let selectedPeriod = '1';
 
         const startSection = document.getElementById('start-section');
         const dateInput = document.getElementById('attendance-date');
+        const periodSelect = document.getElementById('attendance-period');
         const startBtn = document.getElementById('start-btn');
         const formEl = document.getElementById('attendance-form');
         const studentNameEl = document.getElementById('student-name');
@@ -269,6 +284,7 @@
         const nextBtn = document.getElementById('next-btn');
         const summaryEl = document.getElementById('summary');
         const summaryDateEl = document.getElementById('summary-date');
+        const summaryPeriodEl = document.getElementById('summary-period');
         const absentCountEl = document.getElementById('absent-count');
         const absentListEl = document.getElementById('absent-list');
         const backToStartBtn = document.getElementById('back-to-start');
@@ -325,11 +341,16 @@
             historyDetailEl.style.display = 'block';
             historyDetailEl.innerHTML = `<h3>Kết Quả Ngày ${day}/${month.replace('-', '/')}</h3>`;
             const data = getAttendanceData();
-            const att = data[month][day];
-            const absentStudents = students.filter((_, i) => !att[i]);
-            historyDetailEl.innerHTML += `<p>Sĩ số lớp: 44</p><p>Số vắng: ${absentStudents.length}</p><h4>Danh sách vắng:</h4><ul>`;
-            absentStudents.forEach(student => {
-                historyDetailEl.innerHTML += `<li>${student.name} (MSV: ${student.msv})</li>`;
+            const periods = Object.keys(data[month][day] || {});
+            historyDetailEl.innerHTML += '<ul>';
+            periods.forEach(period => {
+                const att = data[month][day][period];
+                const absentStudents = students.filter((_, i) => !att[i]);
+                historyDetailEl.innerHTML += `<li><strong>Tiết ${period}:</strong> Sĩ số: 44, Số vắng: ${absentStudents.length}<br><h4>Danh sách vắng:</h4><ul>`;
+                absentStudents.forEach(student => {
+                    historyDetailEl.innerHTML += `<li>${student.name} (MSV: ${student.msv})</li>`;
+                });
+                historyDetailEl.innerHTML += '</ul></li>';
             });
             historyDetailEl.innerHTML += '</ul>';
         }
@@ -351,6 +372,7 @@
             formEl.style.display = 'none';
             summaryEl.style.display = 'block';
             summaryDateEl.textContent = selectedDate;
+            summaryPeriodEl.textContent = `Tiết ${selectedPeriod}`;
 
             const absentStudents = students.filter((_, i) => !attendance[i]);
             absentCountEl.textContent = absentStudents.length;
@@ -368,7 +390,8 @@
             const [year, month, day] = selectedDate.split('-');
             const monthKey = `${year}-${month}`;
             if (!data[monthKey]) data[monthKey] = {};
-            data[monthKey][parseInt(day)] = attendance;
+            if (!data[monthKey][parseInt(day)]) data[monthKey][parseInt(day)] = {};
+            data[monthKey][parseInt(day)][selectedPeriod] = attendance;
             saveAttendanceData(data);
             updateMonthYearSelect();
         }
@@ -376,6 +399,7 @@
         // Sự kiện
         startBtn.addEventListener('click', () => {
             selectedDate = dateInput.value;
+            selectedPeriod = periodSelect.value;
             if (!selectedDate) {
                 alert('Vui lòng chọn ngày!');
                 return;
