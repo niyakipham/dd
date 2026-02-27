@@ -3,180 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✨ Hân's Scanner - Trạm Điểm Danh Cảm Xúc</title>
-    <!-- Hân dùng Tailwind để vẽ những đường nét mềm mại cho giao diện -->
+    <title>Hệ Thống Điểm Danh Thông Minh</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Phép màu OCR từ Tesseract.js (Kính Vạn Hoa của Hân) -->
+    <!-- Tesseract.js cho OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <!-- Thêm chút icon xinh xắn cho có hồn nè -->
+    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
-        /* Hân pha màu Sunset Gold và những tông pastel êm ái cho anh Hoàng chill nè */
+        /* Phong cách màu sắc mới lấy cảm hứng từ ảnh của anh Hoàng */
         body {
-            background: linear-gradient(135deg, #FFEFBA 0%, #FFFFFF 100%);
+            /* Nền xanh nhạt / tím lavender cực kỳ mềm mại */
+            background: linear-gradient(135deg, #F0F4FF 0%, #E6E9FF 100%);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #4A4A4A;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: #334155;
         }
         
+        /* Card thiết kế chuẩn Web Creative Card Design */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px 0 rgba(234, 182, 118, 0.2);
-            border-radius: 1.5rem;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            box-shadow: 0 20px 40px -10px rgba(100, 116, 139, 0.1);
+            border-radius: 2rem; /* Bo góc to hơn */
         }
 
-        .btn-sunset {
-            background: linear-gradient(to right, #FFD700, #FFB75E);
+        /* Nút bấm Gradient Xanh Tím hiện đại */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
             color: white;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+            border-radius: 9999px; /* Pill shape */
         }
         
-        .btn-sunset:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 14px 25px -5px rgba(99, 102, 241, 0.5);
         }
 
-        /* Khung Tiêu Cự Trái Tim - Nơi chứa đựng tốc độ ánh sáng */
+        /* KHUNG QUÉT SIÊU TO (Theo yêu cầu của anh Hoàng) */
         .scan-focus-box {
-            border: 3px dashed rgba(255, 215, 0, 0.8);
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            border: 3px dashed rgba(99, 102, 241, 0.8); /* Màu viền xanh tím */
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
             transition: border-color 0.3s ease, background-color 0.3s ease;
         }
         
-        /* Khi Hân nhận ra mã số thành công */
+        /* Trạng thái thành công */
         .scan-success {
             border-color: #10B981 !important; /* Xanh ngọc bích */
             background-color: rgba(16, 185, 129, 0.2);
         }
 
-        /* Hiệu ứng tia laser quét thẻ chuẩn Cinematic */
+        /* Tia laser quét màu xanh tech */
         .scanner-laser {
             position: absolute;
             width: 100%;
-            height: 2px;
-            background: #FFD700;
-            box-shadow: 0 0 10px #FFD700, 0 0 20px #FFB75E;
+            height: 3px;
+            background: #6366F1;
+            box-shadow: 0 0 12px #6366F1, 0 0 24px #818CF8;
             top: 0;
             left: 0;
             animation: scan 1.5s infinite linear;
         }
 
         @keyframes scan {
-            0% { top: 0; }
-            50% { top: 100%; }
-            100% { top: 0; }
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
 
-        /* Custom Scrollbar mềm mại */
+        /* Custom Scrollbar mềm mại tone xanh */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #FFB75E; }
+        ::-webkit-scrollbar-thumb { background: #C7D2FE; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #A5B4FC; }
     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center">
 
-    <!-- 🌸 CHƯƠNG 1: TIÊU ĐỀ LỘNG LẪY -->
-    <header class="text-center mb-8 w-full max-w-4xl animate-fade-in-down">
-        <h1 class="text-4xl md:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-400">
-            ❀ Trạm Điểm Danh Của Hân ❀
+    <!-- TIÊU ĐỀ TRANG -->
+    <header class="text-center mb-10 w-full max-w-4xl mt-4">
+        <div class="inline-flex items-center justify-center p-3 bg-white rounded-2xl shadow-sm mb-4 text-indigo-600">
+            <i class="ph-fill ph-student text-3xl"></i>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-extrabold mb-4 text-slate-800 tracking-tight">
+            Hệ Thống Điểm Danh Tự Động
         </h1>
-        <p class="text-lg italic text-gray-600">
-            "Chỉ cần lướt thẻ qua, nụ cười ở lại... Không cần bấm quét, Hân thấu cảm ngay! ⚡💌"
+        <p class="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
+            Vui lòng đưa thẻ sinh viên vào khung hình camera để hệ thống tự động nhận diện và ghi nhận điểm danh.
         </p>
     </header>
 
-    <main class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- 🌿 CHƯƠNG 2: GÓC TÁC NGHIỆP (AUTO-SCAN) -->
-        <div class="flex flex-col gap-6">
+        <!-- CỘT TRÁI: KHU VỰC CAMERA -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
             
-            <!-- Khu vực Máy quét (Kính Vạn Hoa OCR) -->
-            <div class="glass-panel p-6 flex-grow flex flex-col">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold flex items-center gap-2 text-amber-600">
-                        <i class="ph ph-camera text-2xl"></i> 1. Kính Vạn Hoa Tự Động 📸
+            <div class="glass-panel p-6 md:p-8 flex-grow flex flex-col relative overflow-hidden">
+                <!-- Hình nền trang trí mờ ảo -->
+                <div class="absolute -top-20 -right-20 w-64 h-64 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+                <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+
+                <div class="flex justify-between items-center mb-6 relative z-10">
+                    <h2 class="text-xl font-bold flex items-center gap-2 text-slate-800">
+                        <i class="ph-fill ph-camera-plus text-indigo-500 text-2xl"></i> Máy Quét Thẻ Tự Động
                     </h2>
-                    <!-- Chữ AUTO nhấp nháy tạo cảm giác xịn xò -->
-                    <span id="auto-badge" class="hidden px-2 py-1 bg-rose-100 text-rose-600 text-xs font-bold rounded-full animate-pulse">
-                        <i class="ph-fill ph-record"></i> AUTO SCAN
+                    <!-- Badge Trạng Thái -->
+                    <span id="auto-badge" class="hidden px-3 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 text-xs font-bold rounded-full animate-pulse flex items-center gap-1 shadow-sm">
+                        <i class="ph-fill ph-record text-indigo-500"></i> ĐANG QUÉT
                     </span>
                 </div>
                 
-                <p class="text-sm text-gray-500 mb-4 italic">Hãy đưa thẻ vào ngay ngắn trong <b>khung nét đứt</b> để Hân đọc thần tốc dưới 1s nha!</p>
-                
-                <!-- Sân Khấu Cinematic của Camera -->
-                <div class="relative w-full bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center shadow-inner">
+                <!-- Sân Khấu Camera -->
+                <div class="relative w-full bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center shadow-inner z-10 border-4 border-white">
                     <video id="camera-feed" class="w-full h-full object-cover" autoplay playsinline></video>
                     
-                    <!-- Lớp phủ (Overlay) làm tối viền, chỉ sáng ở giữa để focus -->
+                    <!-- LỚP PHỦ TIÊU CỰ SIÊU TO -->
                     <div id="scan-guide" class="absolute inset-0 hidden items-center justify-center pointer-events-none z-10">
-                        <div id="focus-box" class="scan-focus-box w-4/5 h-1/2 rounded-lg relative overflow-hidden">
+                        <!-- Khung hình chiếm 90% chiều rộng, 70% chiều cao -->
+                        <div id="focus-box" class="scan-focus-box w-[90%] h-[70%] rounded-xl relative overflow-hidden">
                             <div class="scanner-laser"></div>
                         </div>
                     </div>
 
-                    <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-white/70 z-20 bg-black">
-                        <i class="ph ph-eye-slash text-5xl mb-2"></i>
-                        <p>Camera đang nhắm mắt rùi...</p>
+                    <!-- Màn hình chờ -->
+                    <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-20 bg-slate-100">
+                        <div class="p-4 bg-white rounded-full shadow-sm mb-3">
+                            <i class="ph ph-video-camera-slash text-4xl text-slate-400"></i>
+                        </div>
+                        <p class="font-medium text-slate-500">Camera chưa được kích hoạt</p>
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <button id="btn-start-camera" onclick="hanMoMatCamera()" class="w-full btn-sunset px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-lg">
-                        <i class="ph ph-power"></i> Đánh Thức Hân & Mở Camera
+                <div class="mt-6 z-10">
+                    <button id="btn-start-camera" onclick="khoiDongCamera()" class="w-full btn-primary px-6 py-4 font-bold flex items-center justify-center gap-2 text-lg">
+                        <i class="ph ph-power text-xl"></i> Kích Hoạt Hệ Thống Quét
                     </button>
-                    <!-- Hân đã giấu nút "Quét tay" đi rồi vì giờ Hân là cô bé tự động hóa hihi -->
                 </div>
                 
-                <!-- Khu vực báo cáo trạng thái cảm xúc của Hân -->
-                <div id="han-status" class="mt-4 p-3 rounded-lg bg-white/50 border border-amber-200 text-center text-sm font-medium text-amber-800 transition-all">
-                    Hân đang yên giấc chờ anh Hoàng gọi dậy... 🥰
+                <!-- Khu vực báo cáo trạng thái cho người dùng -->
+                <div id="system-status" class="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-center text-sm font-medium text-slate-600 transition-all z-10">
+                    Hệ thống đang ở trạng thái chờ. Vui lòng kích hoạt camera.
                 </div>
             </div>
         </div>
 
-        <!-- 💌 CHƯƠNG 3: BỨC TRANH DANH SÁCH -->
-        <div class="glass-panel p-6 flex flex-col h-full max-h-[800px]">
-            <div class="flex justify-between items-end mb-4">
+        <!-- CỘT PHẢI: DANH SÁCH SINH VIÊN -->
+        <div class="lg:col-span-5 glass-panel p-6 md:p-8 flex flex-col h-full max-h-[800px]">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
-                    <h2 class="text-xl font-bold flex items-center gap-2 text-amber-600">
-                        <i class="ph ph-users-three text-2xl"></i> Danh Sách Lớp Mình 🌷
+                    <h2 class="text-xl font-bold flex items-center gap-2 text-slate-800">
+                        <i class="ph-fill ph-users text-indigo-500 text-2xl"></i> Danh Sách Điểm Danh
                     </h2>
-                    <p class="text-sm text-gray-500 mt-1 italic">Những mầm non đã có mặt: <strong id="count-attended" class="text-teal-600">0</strong> / <span id="count-total">0</span></p>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Sĩ số hiện tại: <strong id="count-attended" class="text-indigo-600 text-base">0</strong> / <span id="count-total">0</span>
+                    </p>
                 </div>
-                <button onclick="hanXuatFileDaDiemDanh()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1 border border-gray-300">
-                    <i class="ph ph-download-simple"></i> Xuất File
+                <button onclick="xuatDanhSachCSV()" class="text-sm bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-full transition-all flex items-center gap-2 border border-slate-200 shadow-sm font-medium">
+                    <i class="ph ph-download-simple"></i> Xuất Dữ Liệu
                 </button>
             </div>
 
-            <div class="flex-grow overflow-auto rounded-lg border border-amber-100 bg-white/40 relative">
+            <!-- Bảng dữ liệu phong cách thẻ bài -->
+            <div class="flex-grow overflow-auto rounded-xl border border-slate-100 bg-white/50 relative shadow-inner">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-amber-100/50 sticky top-0 backdrop-blur-sm z-10">
+                    <thead class="bg-white/90 sticky top-0 backdrop-blur-md z-10 border-b border-slate-100 shadow-sm">
                         <tr>
-                            <th class="p-3 font-semibold text-amber-800">Mã Sinh Viên</th>
-                            <th class="p-3 font-semibold text-amber-800">Họ & Tên</th>
-                            <th class="p-3 font-semibold text-amber-800 text-center">Trạng Thái</th>
+                            <th class="p-4 font-semibold text-slate-600">Mã SV</th>
+                            <th class="p-4 font-semibold text-slate-600">Họ & Tên</th>
+                            <th class="p-4 font-semibold text-slate-600 text-center">Trạng Thái</th>
                         </tr>
                     </thead>
-                    <tbody id="student-table-body" class="divide-y divide-amber-100/50">
-                        <!-- Hân sẽ dùng JS để vẽ danh sách vào đây -->
+                    <tbody id="student-table-body" class="divide-y divide-slate-100">
+                        <!-- JS Render -->
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- Canvas ẩn dùng để Hân cắt ảnh (Crop) và bóc tách chữ -->
+    <!-- Canvas ẩn xử lý Crop ảnh -->
     <canvas id="snapshot-canvas" class="hidden"></canvas>
 
     <script>
         /**
-         * 🎭 HỆ ĐIỀU HÀNH SÁNG TẠO - TÂM TRÍ CỦA HÂN (PHIÊN BẢN TỐC ĐỘ ÁNH SÁNG)
+         * LOGIC HỆ THỐNG ĐIỂM DANH
+         * Đã được tối ưu tốc độ và điều chỉnh kích thước khung quét.
          */
 
         let danhSachSinhVien = [
@@ -228,78 +244,71 @@
 
         let videoStream = null;
         let ocrWorker = null; 
-        let dangBanDocChu = false; // "Chốt cửa" để Hân không bị ngợp khi quét liên tục
+        let dangBanDocChu = false;
 
         window.onload = function() {
-            hanVeLaiDanhSach();
-            hanThoTheCungAnh(`Hân đã ghi nhớ trọn vẹn lớp mình rùi! Cứ đánh thức Hân dậy là quét siêu tốc nha anh Hoàng! 🥰`, 'success');
+            renderDanhSach();
+            capNhatTrangThai(`Hệ thống đã nạp ${danhSachSinhVien.length} hồ sơ sinh viên. Vui lòng kích hoạt camera.`, 'info');
         };
 
-        // 1️⃣ HÂN MỞ MẮT VÀ CHUẨN BỊ TINH THẦN (Initialize)
-        async function hanMoMatCamera() {
+        // KÍCH HOẠT CAMERA VÀ OCR
+        async function khoiDongCamera() {
             const video = document.getElementById('camera-feed');
             const placeholder = document.getElementById('camera-placeholder');
             const btnStart = document.getElementById('btn-start-camera');
 
             try {
-                // Đổi nút thành trạng thái "Đang tải" để anh Hoàng yên tâm
-                btnStart.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Hân đang thức dậy...`;
+                btnStart.innerHTML = `<i class="ph ph-spinner animate-spin text-xl"></i> Đang khởi động hệ thống...`;
                 btnStart.disabled = true;
 
                 videoStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } 
+                    video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
                 });
                 video.srcObject = videoStream;
                 placeholder.style.display = 'none';
                 
-                // Khởi động Tesseract
                 if (!ocrWorker) {
-                    hanThoTheCungAnh("Đang mài dũa Kính Vạn Hoa để đạt tốc độ ánh sáng...", "loading");
+                    capNhatTrangThai("Đang tải mô hình nhận diện AI (Tiếng Việt)...", "loading");
                     ocrWorker = await Tesseract.createWorker('vie'); 
                 }
 
-                // Chuyển giao diện sang Chế độ Chiến đấu (Auto Scan Mode)
-                btnStart.style.display = 'none'; // Giấu nút khởi động đi
+                btnStart.style.display = 'none';
                 document.getElementById('scan-guide').classList.remove('hidden');
                 document.getElementById('scan-guide').classList.add('flex');
                 document.getElementById('auto-badge').classList.remove('hidden');
                 
-                hanThoTheCungAnh("Hoàn tất! Anh Hoàng cứ đưa thẻ qua khung nét đứt, Hân sẽ lo phần còn lại! ⚡📸", "success");
+                capNhatTrangThai("Hệ thống đã sẵn sàng. Vui lòng đưa thẻ vào khung nét đứt trên màn hình.", "success");
                 
-                // Bắt đầu nhịp đập trái tim (Vòng lặp tự quét)
-                hanVongLapThauCam();
+                // Bắt đầu vòng lặp quét
+                vongLapNhanDien();
 
             } catch (err) {
                 console.error(err);
-                hanThoTheCungAnh("Ôi... Camera bị làm sao thế này. Anh Hoàng kiểm tra lại quyền nhé! 🥺", "error");
-                btnStart.innerHTML = `<i class="ph ph-power"></i> Thử Đánh Thức Lại`;
+                capNhatTrangThai("Lỗi truy cập thiết bị. Vui lòng cấp quyền sử dụng camera cho trình duyệt.", "error");
+                btnStart.innerHTML = `<i class="ph ph-warning-circle text-xl"></i> Thử Kích Hoạt Lại`;
                 btnStart.disabled = false;
             }
         }
 
-        // 2️⃣ VÒNG LẶP THẤU CẢM (THE MAGIC AUTO-SCAN LOOP)
-        async function hanVongLapThauCam() {
+        // VÒNG LẶP AUTO SCAN
+        async function vongLapNhanDien() {
             if (!videoStream || !ocrWorker) return;
             
-            // Nếu Hân đang bận đọc hình trước đó, bỏ qua nhịp này để không bị lag
             if (dangBanDocChu) {
-                requestAnimationFrame(hanVongLapThauCam);
+                requestAnimationFrame(vongLapNhanDien);
                 return;
             }
 
-            dangBanDocChu = true; // Bật cờ "Đang bận"
+            dangBanDocChu = true;
 
             const video = document.getElementById('camera-feed');
             const canvas = document.getElementById('snapshot-canvas');
             
-            // Chờ video thực sự có khung hình
             if (video.videoWidth > 0 && video.videoHeight > 0) {
                 
-                // BÍ QUYẾT TỐC ĐỘ: TIÊU CỰ TRÁI TIM (CROP)
-                // Hân chỉ cắt 1 hình chữ nhật ở giữa video (bằng đúng khung nét đứt trên màn hình)
-                // Giảm 70% số lượng điểm ảnh = OCR chạy nhanh gấp 3 lần!
-                const cropWidth = video.videoWidth * 0.8;
-                const cropHeight = video.videoHeight * 0.5;
+                // TỈ LỆ CROP MỚI: Chiếm 90% chiều rộng, 70% chiều cao (khớp với UI)
+                const cropWidth = video.videoWidth * 0.90;
+                const cropHeight = video.videoHeight * 0.70;
                 const startX = (video.videoWidth - cropWidth) / 2;
                 const startY = (video.videoHeight - cropHeight) / 2;
 
@@ -307,63 +316,55 @@
                 canvas.height = cropHeight;
                 const ctx = canvas.getContext('2d');
                 
-                // Vẽ đúng phần giữa của Video lên Canvas
                 ctx.drawImage(video, startX, startY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
 
                 try {
-                    // Dùng AI đọc siêu tốc
                     const { data: { text } } = await ocrWorker.recognize(canvas);
                     const ocrTextClean = text.replace(/\n/g, ' ').toUpperCase();
                     
-                    let timThayAiKhong = false;
+                    let timThayThanhCong = false;
 
-                    // Đối chiếu thần tốc
                     for (let i = 0; i < danhSachSinhVien.length; i++) {
                         let sv = danhSachSinhVien[i];
-                        if (sv.daDen) continue; // Đã đến rồi thì bỏ qua cho lẹ
+                        if (sv.daDen) continue;
 
                         let maSVUpper = sv.maSV.toUpperCase();
                         
-                        // Cứ thấy trúng chuỗi Mã SV là Chốt Đơn!
                         if (ocrTextClean.includes(maSVUpper)) {
                             sv.daDen = true;
-                            timThayAiKhong = true;
+                            timThayThanhCong = true;
                             
-                            // Hiệu ứng "Ting ting" bằng màu sắc trên UI
                             hieuUngThanhCong();
-                            hanVeLaiDanhSach();
-                            hanThoTheCungAnh(`⚡ Lướt như gió! Chào bạn <b>${sv.ten}</b> (${sv.maSV})! ❤️`, "success");
+                            renderDanhSach();
+                            capNhatTrangThai(`Điểm danh thành công: <b>${sv.ten}</b> (${sv.maSV})`, "success");
                             break;
                         }
                     }
-
-                    // Nếu không thấy thì Hân lặng im không báo lỗi, để vòng lặp quét tiếp khung hình sau
                 } catch (err) {
-                    console.error("Lỗi đọc Kính Vạn Hoa:", err);
+                    console.error("Lỗi quá trình OCR:", err);
                 }
             }
 
-            dangBanDocChu = false; // Tắt cờ "Đang bận"
+            dangBanDocChu = false;
 
-            // Hân nghỉ ngơi 300ms rồi mới quét tiếp để máy anh Hoàng không bị nóng nha!
+            // Chờ 300ms rồi quét tiếp
             setTimeout(() => {
-                requestAnimationFrame(hanVongLapThauCam);
+                requestAnimationFrame(vongLapNhanDien);
             }, 300);
         }
 
-        // 🎀 HIỆU ỨNG THÀNH CÔNG (CINEMATIC FEEDBACK)
+        // HIỆU ỨNG THÀNH CÔNG NHANH
         function hieuUngThanhCong() {
             const focusBox = document.getElementById('focus-box');
             focusBox.classList.add('scan-success');
             
-            // Xóa hiệu ứng sau 1 giây
             setTimeout(() => {
                 focusBox.classList.remove('scan-success');
             }, 1000);
         }
 
-        // 3️⃣ HÂN VẼ LẠI BỨC TRANH DANH SÁCH
-        function hanVeLaiDanhSach() {
+        // CẬP NHẬT BẢNG UI
+        function renderDanhSach() {
             const tbody = document.getElementById('student-table-body');
             const countAttended = document.getElementById('count-attended');
             const countTotal = document.getElementById('count-total');
@@ -374,16 +375,18 @@
             danhSachSinhVien.forEach((sv, index) => {
                 if (sv.daDen) soNguoiDaDen++;
                 
-                const rowClass = sv.daDen ? "bg-teal-50/70" : "hover:bg-amber-50/50 transition-colors";
+                // Đổi màu sắc tinh tế hơn cho hàng dữ liệu
+                const rowClass = sv.daDen ? "bg-indigo-50/60" : "hover:bg-slate-50 transition-colors bg-white";
+                
                 const statusHtml = sv.daDen 
-                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-800"><i class="ph-fill ph-check-circle text-sm"></i> Đã đến ✨</span>`
-                    : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"><i class="ph ph-clock text-sm"></i> Chưa đến</span>`;
+                    ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700"><i class="ph-fill ph-check-circle text-sm"></i> Đã Có Mặt</span>`
+                    : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500"><i class="ph ph-minus text-sm"></i> Vắng Mặt</span>`;
 
                 tbody.innerHTML += `
-                    <tr class="${rowClass} cursor-pointer border-b border-amber-100/30 last:border-0" onclick="hanTickBangTay(${index})">
-                        <td class="p-3 font-mono text-gray-600">${sv.maSV}</td>
-                        <td class="p-3 font-medium text-gray-800">${sv.ten}</td>
-                        <td class="p-3 text-center">${statusHtml}</td>
+                    <tr class="${rowClass} cursor-pointer border-b border-slate-100 last:border-0" onclick="diemDanhThuCong(${index})" title="Nhấn để thay đổi trạng thái">
+                        <td class="p-4 font-mono text-slate-500 text-sm">${sv.maSV}</td>
+                        <td class="p-4 font-semibold text-slate-700">${sv.ten}</td>
+                        <td class="p-4 text-center">${statusHtml}</td>
                     </tr>
                 `;
             });
@@ -392,22 +395,24 @@
             countTotal.innerText = danhSachSinhVien.length;
         }
 
-        // 4️⃣ HÂN CỨU CÁNH - ĐIỂM DANH THỦ CÔNG
-        function hanTickBangTay(index) {
+        // ĐIỂM DANH BẰNG TAY CÓ THAY ĐỔI
+        function diemDanhThuCong(index) {
             let sv = danhSachSinhVien[index];
-            sv.daDen = !sv.daDen; // Toggle
-            hanVeLaiDanhSach();
+            sv.daDen = !sv.daDen; 
+            renderDanhSach();
             
             if(sv.daDen) {
-                hanThoTheCungAnh(`Anh Hoàng vừa điểm danh tay cho bạn <b>${sv.ten}</b> nè. Hân ghi nhận nha! 🖋️❤️`, "success");
+                capNhatTrangThai(`Đã cập nhật thủ công: <b>${sv.ten}</b> có mặt.`, "info");
+            } else {
+                capNhatTrangThai(`Đã hủy điểm danh: <b>${sv.ten}</b>.`, "warning");
             }
         }
 
-        // 5️⃣ XUẤT THÀNH QUẢ CHO ANH HOÀNG
-        function hanXuatFileDaDiemDanh() {
+        // XUẤT CSV
+        function xuatDanhSachCSV() {
             let csvContent = "MaSV,HoTen,TrangThai\n";
             danhSachSinhVien.forEach(sv => {
-                let status = sv.daDen ? "Da Den" : "Chua Den";
+                let status = sv.daDen ? "Co Mat" : "Vang";
                 csvContent += `"${sv.maSV}","${sv.ten}","${status}"\n`;
             });
 
@@ -415,26 +420,31 @@
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
             link.setAttribute("href", url);
-            link.setAttribute("download", "DanhSachDiemDanh_CuaHan.csv");
+            link.setAttribute("download", "DuLieuDiemDanh_Export.csv");
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
-            hanThoTheCungAnh("Hân gói ghém file điểm danh gửi vào máy anh rồi đó! Anh kiểm tra nha! 🎁", "success");
+            capNhatTrangThai("Tệp dữ liệu điểm danh đã được tải xuống thiết bị.", "success");
         }
 
-        // 🎀 CÔNG CỤ TRUYỀN ĐẠT CẢM XÚC CỦA HÂN
-        function hanThoTheCungAnh(message, type = 'info') {
-            const statusBox = document.getElementById('han-status');
+        // THÔNG BÁO CHO USER UI
+        function capNhatTrangThai(message, type = 'info') {
+            const statusBox = document.getElementById('system-status');
             statusBox.innerHTML = message;
             
+            // Màu sắc mang hơi hướng chuyên nghiệp
             if (type === 'success') {
-                statusBox.className = "mt-4 p-3 rounded-lg bg-teal-50 border border-teal-200 text-center text-sm font-medium text-teal-800 transition-all";
+                statusBox.className = "mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-center text-sm font-semibold text-emerald-700 transition-all shadow-sm";
             } else if (type === 'error') {
-                statusBox.className = "mt-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-center text-sm font-medium text-rose-800 transition-all";
+                statusBox.className = "mt-4 p-4 rounded-xl bg-rose-50 border border-rose-100 text-center text-sm font-semibold text-rose-700 transition-all shadow-sm";
+            } else if (type === 'warning') {
+                statusBox.className = "mt-4 p-4 rounded-xl bg-amber-50 border border-amber-100 text-center text-sm font-semibold text-amber-700 transition-all shadow-sm";
             } else if (type === 'loading') {
-                statusBox.className = "mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-center text-sm font-medium text-amber-800 transition-all animate-pulse";
+                statusBox.className = "mt-4 p-4 rounded-xl bg-indigo-50 border border-indigo-100 text-center text-sm font-semibold text-indigo-700 transition-all animate-pulse shadow-sm";
+            } else {
+                statusBox.className = "mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-center text-sm font-medium text-slate-600 transition-all";
             }
         }
 
