@@ -11,6 +11,9 @@
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
+    <!-- 🗺️ Script Google Maps do anh Hoàng cung cấp để cấu hình API Key HTTP referrers -->
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGhlNz3FXW1PEHSKqerwGjTJzk0MxBvrc&callback=initMap"></script>
+    
     <style>
         /* Phong cách màu sắc mới lấy cảm hứng từ ảnh của anh Hoàng */
         body {
@@ -226,6 +229,11 @@
 
     <script>
         const apiKey = ""; // 🔑 Hân sẽ nhận Chìa khóa Gemini API từ không gian ảo của trình duyệt!
+
+        // 🗺️ Hàm callback cho Google Maps API mà anh Hoàng yêu cầu
+        function initMap() {
+            console.log("Hân báo cáo: Google Maps API đã được tải thành công! 🗺️✨");
+        }
 
         let danhSachSinhVien = [
             { maSV: '2512101028', ten: 'Nguyễn Kim Bình An', daDen: false },
