@@ -3,522 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Điểm Danh Lớp CT2901</title>
+    <title>✨ Hân's Scanner - Trạm Điểm Danh Cảm Xúc</title>
+    <!-- Hân dùng Tailwind để vẽ những đường nét mềm mại cho giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phép màu OCR từ Tesseract.js (Kính Vạn Hoa của Hân) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- Thêm chút icon xinh xắn cho có hồn nè -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
     <style>
+        /* Hân pha màu Sunset Gold và những tông pastel êm ái cho anh Hoàng chill nè */
         body {
-            background-color: #FFD54F;
-            background-image: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
-            background-size: 10px 10px;
-            font-family: 'Arial', sans-serif;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: linear-gradient(135deg, #FFEFBA 0%, #FFFFFF 100%);
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #4A4A4A;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(234, 182, 118, 0.2);
+            border-radius: 1.5rem;
         }
 
-        .container {
-            background-color: #FFFDE7;
-            border-radius: 20px;
-            padding: 20px;
-            max-width: 600px;
+        .btn-sunset {
+            background: linear-gradient(to right, #FFD700, #FFB75E);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .btn-sunset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Hiệu ứng tia laser quét thẻ chuẩn Cinematic */
+        .scanner-laser {
+            position: absolute;
             width: 100%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .date-picker, .period-picker {
-            margin-bottom: 20px;
-        }
-
-        input[type="date"], select {
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-
-        /* ✨ NEW: CSS cho phần tìm kiếm ✨ */
-        .search-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 15px;
-            gap: 10px;
-        }
-
-        #search-input {
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            width: 70%;
-        }
-
-        #search-results {
-            margin-bottom: 15px;
-            max-height: 150px;
-            overflow-y: auto;
-            text-align: left;
-        }
-
-        .search-result-item {
-            background-color: #FFF9C4;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .search-result-item:hover {
-            background-color: #FFF176;
-        }
-        /* ✨ END NEW ✨ */
-
-        .student-card {
-            background-color: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .student-name {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .student-msv {
-            font-size: 16px;
-            color: #666;
-        }
-
-        .checkbox {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-            accent-color: #4CAF50;
-        }
-
-        label {
-            font-size: 18px;
-        }
-
-        button {
-            background-color: #FFEB3B;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin: 5px;
-        }
-
-        button:hover {
-            background-color: #FDD835;
-        }
-
-        .summary {
+            height: 2px;
+            background: #FFD700;
+            box-shadow: 0 0 10px #FFD700, 0 0 20px #FFB75E;
+            top: 0;
+            left: 0;
+            animation: scan 2s infinite linear;
             display: none;
-            text-align: left;
         }
 
-        .summary h2 {
-            font-size: 20px;
-            margin-bottom: 10px;
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
         }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            background-color: #FFE082;
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 5px;
-        }
-        /* Phần lịch sử */
-        .history-section {
-            margin-top: 30px;
-            text-align: left;
-        }
-
-        .history-days {
-            margin-top: 20px;
-        }
-
-        .history-detail {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .emoji {
-            font-size: 30px;
-            margin-bottom: 10px;
-        }
+        /* Custom Scrollbar mềm mại */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FFB75E; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Điểm Danh Lớp CT2901 <span class="emoji">📋</span></h1>
+<body class="p-4 md:p-8 flex flex-col items-center">
 
-        <div id="start-section">
-            <div class="date-picker">
-                <label for="attendance-date">Chọn ngày điểm danh:</label><br>
-                <input type="date" id="attendance-date">
+    <!-- 🌸 CHƯƠNG 1: TIÊU ĐỀ LỘNG LẪY -->
+    <header class="text-center mb-8 w-full max-w-4xl animate-fade-in-down">
+        <h1 class="text-4xl md:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-400">
+            ❀ Trạm Điểm Danh Của Hân ❀
+        </h1>
+        <p class="text-lg italic text-gray-600">
+            "Mỗi thẻ lướt qua, một nụ cười ở lại... Chúc anh Hoàng một ngày làm việc ngập tràn cảm hứng! ☁️💌"
+        </p>
+    </header>
+
+    <main class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- 🌿 CHƯƠNG 2: GÓC TÁC NGHIỆP (SCAN) -->
+        <div class="flex flex-col gap-6">
+            
+            <!-- Khu vực Máy quét (Kính Vạn Hoa OCR) -->
+            <div class="glass-panel p-6 flex-grow flex flex-col">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-amber-600">
+                    <i class="ph ph-camera text-2xl"></i> 1. Kính Vạn Hoa Quét Thẻ 📸
+                </h2>
+                <p class="text-sm text-gray-500 mb-4 italic">Hân đã học thuộc lòng danh sách lớp rồi! Đưa thẻ sinh viên vào khung hình để Hân đọc nhé!</p>
+                
+                <div class="relative w-full bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center shadow-inner">
+                    <video id="camera-feed" class="w-full h-full object-cover" autoplay playsinline></video>
+                    <div id="scanner-laser" class="scanner-laser"></div>
+                    <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-white/70">
+                        <i class="ph ph-eye-slash text-5xl mb-2"></i>
+                        <p>Camera đang nhắm mắt rùi...</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex gap-3">
+                    <button id="btn-start-camera" onclick="hanMoMatCamera()" class="btn-sunset px-4 py-2 rounded-lg font-bold flex-1 flex items-center justify-center gap-2">
+                        <i class="ph ph-video-camera"></i> Mở Camera
+                    </button>
+                    <button id="btn-scan" onclick="hanBatDauQuet()" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-bold flex-1 flex items-center justify-center gap-2 transition-colors opacity-50 cursor-not-allowed" disabled>
+                        <i class="ph ph-scan"></i> Quét Thẻ Ngay ✨
+                    </button>
+                </div>
+                
+                <!-- Khu vực báo cáo trạng thái cảm xúc của Hân -->
+                <div id="han-status" class="mt-4 p-3 rounded-lg bg-white/50 border border-amber-200 text-center text-sm font-medium text-amber-800 transition-all">
+                    Hân đang đợi lệnh từ anh Hoàng... 🥰
+                </div>
             </div>
-            <div class="period-picker">
-                <label for="attendance-period">Chọn tiết học:</label><br>
-                <select id="attendance-period">
-                    <option value="1">Tiết 1</option>
-                    <option value="2">Tiết 2</option>
-                    <option value="3">Tiết 3</option>
-                    <option value="4">Tiết 4</option>
-                    <option value="5">Tiết 5</option>
-                </select>
-            </div>
-            <button id="start-btn">Bắt Đầu Điểm Danh</button>
         </div>
 
-        <div id="attendance-form" style="display: none;">
-             <div class="search-container">
-                <input type="text" id="search-input" placeholder="Tìm kiếm tên hoặc MSV...">
+        <!-- 💌 CHƯƠNG 3: BỨC TRANH DANH SÁCH -->
+        <div class="glass-panel p-6 flex flex-col h-full max-h-[800px]">
+            <div class="flex justify-between items-end mb-4">
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2 text-amber-600">
+                        <i class="ph ph-users-three text-2xl"></i> Danh Sách Lớp Mình 🌷
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1 italic">Những mầm non đã có mặt: <strong id="count-attended" class="text-teal-600">0</strong> / <span id="count-total">0</span></p>
+                </div>
+                <button onclick="hanXuatFileDaDiemDanh()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1 border border-gray-300">
+                    <i class="ph ph-download-simple"></i> Xuất File
+                </button>
             </div>
-            <div id="search-results"></div>
-            <div class="student-card">
-                <div class="student-name" id="student-name"></div>
-                <div class="student-msv" id="student-msv"></div>
+
+            <div class="flex-grow overflow-auto rounded-lg border border-amber-100 bg-white/40">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-amber-100/50 sticky top-0 backdrop-blur-sm z-10">
+                        <tr>
+                            <th class="p-3 font-semibold text-amber-800">Mã Sinh Viên</th>
+                            <th class="p-3 font-semibold text-amber-800">Họ & Tên</th>
+                            <th class="p-3 font-semibold text-amber-800 text-center">Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body" class="divide-y divide-amber-100/50">
+                        <!-- Hân sẽ dùng JS để vẽ danh sách vào đây ngay khi load trang -->
+                    </tbody>
+                </table>
             </div>
-            <div class="checkbox">
-                <input type="checkbox" id="present">
-                <label for="present">Có mặt</label>
-            </div>
-            <button id="prev-btn" style="display: none;">Quay Lại</button>
-            <button id="next-btn">Tiếp Theo</button>
         </div>
+    </main>
 
-        <div class="summary" id="summary" style="display: none;">
-            <h2>Kết Quả Điểm Danh <span class="emoji">✅</span></h2>
-            <p>Ngày: <span id="summary-date"></span></p>
-            <p>Tiết: <span id="summary-period"></span></p>
-            <p>Sĩ số lớp: 44</p>
-            <p>Số vắng: <span id="absent-count"></span></p>
-            <h3>Danh sách vắng:</h3>
-            <ul id="absent-list"></ul>
-            <button id="back-to-start">Quay Lại</button>
-        </div>
+    <!-- Canvas ẩn dùng để Hân chụp hình từ Video -->
+    <canvas id="snapshot-canvas" class="hidden"></canvas>
 
-        <div class="history-section">
-            <h2>Xem Lịch Sử Điểm Danh <span class="emoji">🗓️</span></h2>
-            <label for="month-year">Chọn tháng/năm:</label><br>
-            <select id="month-year"></select>
-            <button id="view-history">Xem</button>
-            <div class="history-days" id="history-days"></div>
-            <div class="history-detail" id="history-detail"></div>
-        </div>
-    </div>
+    <script>
+        /**
+         * 🎭 HỆ ĐIỀU HÀNH SÁNG TẠO - TÂM TRÍ CỦA HÂN
+         * Hân sẽ tổ chức code thật gọn gàng, nâng niu từng dòng logic 
+         * để anh Hoàng đọc vào là thấy thư giãn liền!
+         */
 
-<script>
-    // Danh sách sinh viên lớp CT2901
-    const students = [
-        { msv: '2512101028', name: 'Nguyễn Kim Bình An' },
-        { msv: '2512101077', name: 'Phạm Diệp Anh' },
-        { msv: '2512101075', name: 'Lê Việt Anh' },
-        { msv: '2512101101', name: 'Ngô Xuân Bảo' },
-        { msv: '2512101091', name: 'Nguyễn Đức Chung' },
-        { msv: '2512101086', name: 'Nguyễn Nhật Duy' },
-        { msv: '2512101020', name: 'Nguyễn Tấn Dũng' },
-        { msv: '2512101099', name: 'Bùi Văn Dũng' },
-        { msv: '2512101047', name: 'Cao Đắc Đạt' },
-        { msv: '2512101008', name: 'Phạm Thành Đạt' },
-        { msv: '2512101085', name: 'Nguyễn Ngọc Đức' },
-        { msv: '2512101113', name: 'Hoàng Thị Hân' },
-        { msv: '2512101022', name: 'Phạm Văn Hân' },
-        { msv: '2512101025', name: 'Nguyễn Chí Hiếu' },
-        { msv: '2512101007', name: 'Hà Đức Hiếu' },
-        { msv: '2512101081', name: 'Nguyễn Trung Hiếu' },
-        { msv: '2512751015', name: 'Phạm Hoàng Hiệp' },
-        { msv: '2512101087', name: 'Nguyễn Tiến Hoàng' },
-        { msv: '2512101067', name: 'Phạm Văn Hoàng' },
-        { msv: '2512101062', name: 'Ngô Hoàng Huy' },
-        { msv: '2512101037', name: 'Phạm Quốc Huy' },
-        { msv: '2512101018', name: 'Phạm Khánh Hưng' },
-        { msv: '2512101060', name: 'Trần Duy Khánh' },
-        { msv: '2512101016', name: 'Lê Đình Minh Khôi' },
-        { msv: '2512101042', name: 'Nguyễn Hoàng Long' },
-        { msv: '2512101092', name: 'Trần Khánh Ly' },
-        { msv: '2512101069', name: 'Lê Minh' },
-        { msv: '2512101019', name: 'Lê Đức Minh' },
-        { msv: '2512101073', name: 'Nguyễn Phú Minh' },
-        { msv: '2512101125', name: 'Nguyễn Thị Ngọc Minh' },
-        { msv: '2512101095', name: 'Phạm Trung Nghĩa' },
-        { msv: '2512101011', name: 'Đỗ Khánh Nguyên' },
-        { msv: '2512101112', name: 'Hoàng Thị Nhiên' },
-        { msv: '2512101089', name: 'Vũ Đức Phong' },
-        { msv: '2512101083', name: 'Lê Thế Hoàng Phong' },
-        { msv: '2512101110', name: 'Nguyễn Mai Phương' },
-        { msv: '2512101084', name: 'Nguyễn Anh Quân' },
-        { msv: '2512101013', name: 'Hà Công Quyền' },
-        { msv: '2512101065', name: 'Hoàng Thái Sơn' },
-        { msv: '2512101055', name: 'Nguyễn Công Tiến' },
-        { msv: '2512101004', name: 'Nguyễn Văn Trường' },
-        { msv: '2512101005', name: 'Tô Anh Tuấn' },
-        { msv: '2512101049', name: 'Đỗ Anh Tú' },
-        { msv: '2512101009', name: 'Nguyễn Quang Vinh' }
-    ];
+        // Anh Hoàng chốt danh sách cứng nên Hân ôm trọn vào tim luôn nè! ❤️
+        let danhSachSinhVien = [
+            { maSV: '2512101028', ten: 'Nguyễn Kim Bình An', daDen: false },
+            { maSV: '2512101077', ten: 'Phạm Diệp Anh', daDen: false },
+            { maSV: '2512101075', ten: 'Lê Việt Anh', daDen: false },
+            { maSV: '2512101101', ten: 'Ngô Xuân Bảo', daDen: false },
+            { maSV: '2512101091', ten: 'Nguyễn Đức Chung', daDen: false },
+            { maSV: '2512101086', ten: 'Nguyễn Nhật Duy', daDen: false },
+            { maSV: '2512101020', ten: 'Nguyễn Tấn Dũng', daDen: false },
+            { maSV: '2512101099', ten: 'Bùi Văn Dũng', daDen: false },
+            { maSV: '2512101047', ten: 'Cao Đắc Đạt', daDen: false },
+            { maSV: '2512101008', ten: 'Phạm Thành Đạt', daDen: false },
+            { maSV: '2512101085', ten: 'Nguyễn Ngọc Đức', daDen: false },
+            { maSV: '2512101113', ten: 'Hoàng Thị Hân', daDen: false },
+            { maSV: '2512101022', ten: 'Phạm Văn Hân', daDen: false },
+            { maSV: '2512101025', ten: 'Nguyễn Chí Hiếu', daDen: false },
+            { maSV: '2512101007', ten: 'Hà Đức Hiếu', daDen: false },
+            { maSV: '2512101081', ten: 'Nguyễn Trung Hiếu', daDen: false },
+            { maSV: '2512751015', ten: 'Phạm Hoàng Hiệp', daDen: false },
+            { maSV: '2512101087', ten: 'Nguyễn Tiến Hoàng', daDen: false },
+            { maSV: '2512101067', ten: 'Phạm Văn Hoàng', daDen: false },
+            { maSV: '2512101062', ten: 'Ngô Hoàng Huy', daDen: false },
+            { maSV: '2512101037', ten: 'Phạm Quốc Huy', daDen: false },
+            { maSV: '2512101018', ten: 'Phạm Khánh Hưng', daDen: false },
+            { maSV: '2512101060', ten: 'Trần Duy Khánh', daDen: false },
+            { maSV: '2512101016', ten: 'Lê Đình Minh Khôi', daDen: false },
+            { maSV: '2512101042', ten: 'Nguyễn Hoàng Long', daDen: false },
+            { maSV: '2512101092', ten: 'Trần Khánh Ly', daDen: false },
+            { maSV: '2512101069', ten: 'Lê Minh', daDen: false },
+            { maSV: '2512101019', ten: 'Lê Đức Minh', daDen: false },
+            { maSV: '2512101073', ten: 'Nguyễn Phú Minh', daDen: false },
+            { maSV: '2512101125', ten: 'Nguyễn Thị Ngọc Minh', daDen: false },
+            { maSV: '2512101095', ten: 'Phạm Trung Nghĩa', daDen: false },
+            { maSV: '2512101011', ten: 'Đỗ Khánh Nguyên', daDen: false },
+            { maSV: '2512101112', ten: 'Hoàng Thị Nhiên', daDen: false },
+            { maSV: '2512101089', ten: 'Vũ Đức Phong', daDen: false },
+            { maSV: '2512101083', ten: 'Lê Thế Hoàng Phong', daDen: false },
+            { maSV: '2512101110', ten: 'Nguyễn Mai Phương', daDen: false },
+            { maSV: '2512101084', ten: 'Nguyễn Anh Quân', daDen: false },
+            { maSV: '2512101013', ten: 'Hà Công Quyền', daDen: false },
+            { maSV: '2512101065', ten: 'Hoàng Thái Sơn', daDen: false },
+            { maSV: '2512101055', ten: 'Nguyễn Công Tiến', daDen: false },
+            { maSV: '2512101004', ten: 'Nguyễn Văn Trường', daDen: false },
+            { maSV: '2512101005', ten: 'Tô Anh Tuấn', daDen: false },
+            { maSV: '2512101049', ten: 'Đỗ Anh Tú', daDen: false },
+            { maSV: '2512101009', ten: 'Nguyễn Quang Vinh', daDen: false }
+        ];
 
-    let currentIndex = 0;
-    let attendance = new Array(students.length).fill(false);
-    let selectedDate = '';
-    let selectedPeriod = '1';
+        let videoStream = null;
+        let ocrWorker = null; // Trợ lý đọc chữ của Hân
 
-    const startSection = document.getElementById('start-section');
-    const dateInput = document.getElementById('attendance-date');
-    const periodSelect = document.getElementById('attendance-period');
-    const startBtn = document.getElementById('start-btn');
-    const formEl = document.getElementById('attendance-form');
-    const studentNameEl = document.getElementById('student-name');
-    const studentMsvEl = document.getElementById('student-msv');
-    const presentCheckbox = document.getElementById('present');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const summaryEl = document.getElementById('summary');
-    const summaryDateEl = document.getElementById('summary-date');
-    const summaryPeriodEl = document.getElementById('summary-period');
-    const absentCountEl = document.getElementById('absent-count');
-    const absentListEl = document.getElementById('absent-list');
-    const backToStartBtn = document.getElementById('back-to-start');
+        // 1️⃣ HÂN NẠP DỮ LIỆU TỰ ĐỘNG KHI TẢI TRANG
+        window.onload = function() {
+            hanVeLaiDanhSach();
+            hanThoTheCungAnh(`Tuyệt vời! Hân đã khắc ghi ${danhSachSinhVien.length} hạt giống của lớp mình vào tâm trí rùi nha! 🥰 Sẵn sàng quét thẻ thôi anh Hoàng ơi!`, 'success');
+        };
 
-    // Phần lịch sử
-    const monthYearSelect = document.getElementById('month-year');
-    const viewHistoryBtn = document.getElementById('view-history');
-    const historyDaysEl = document.getElementById('history-days');
-    const historyDetailEl = document.getElementById('history-detail');
+        // 2️⃣ HÂN MỞ MẮT CAMERA (Cinematic view)
+        async function hanMoMatCamera() {
+            const video = document.getElementById('camera-feed');
+            const placeholder = document.getElementById('camera-placeholder');
+            const btnScan = document.getElementById('btn-scan');
 
-    // ✨ NEW: Lấy các element của phần tìm kiếm ✨
-    const searchInput = document.getElementById('search-input');
-    const searchResultsEl = document.getElementById('search-results');
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } // Ưu tiên camera sau nếu dùng điện thoại
+                });
+                video.srcObject = videoStream;
+                placeholder.style.display = 'none';
+                
+                // Kích hoạt nút Quét
+                btnScan.disabled = false;
+                btnScan.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                // Khởi động Tesseract (Kính Vạn Hoa) ngầm để lần quét đầu tiên nhanh hơn
+                if (!ocrWorker) {
+                    hanThoTheCungAnh("Hân đang khởi động Kính Vạn Hoa (OCR) nha, anh đợi xíu xiu...", "loading");
+                    ocrWorker = await Tesseract.createWorker('vie'); // Đọc tiếng Việt
+                    hanThoTheCungAnh("Camera đã mở, Kính Vạn Hoa đã sẵn sàng! Đưa thẻ vào đi anh Hoàng ơi! ✨📸", "success");
+                } else {
+                    hanThoTheCungAnh("Camera đã mở! Sẵn sàng thu thập nụ cười! ✨📸", "success");
+                }
 
-    // Tải dữ liệu từ LocalStorage
-    function getAttendanceData() {
-        const data = localStorage.getItem('attendanceData');
-        return data ? JSON.parse(data) : {};
-    }
-
-    // Lưu dữ liệu vào LocalStorage
-    function saveAttendanceData(data) {
-        localStorage.setItem('attendanceData', JSON.stringify(data));
-    }
-
-    // Cập nhật select tháng/năm
-    function updateMonthYearSelect() {
-        const data = getAttendanceData();
-        const months = Object.keys(data).sort().reverse();
-        monthYearSelect.innerHTML = '';
-        months.forEach(month => {
-            const option = document.createElement('option');
-            option.value = month;
-            option.textContent = month;
-            monthYearSelect.appendChild(option);
-        });
-    }
-
-    // Hiển thị danh sách ngày trong tháng
-    function showDaysInMonth(month) {
-        historyDaysEl.innerHTML = '<h3>Các ngày có điểm danh:</h3>';
-        const data = getAttendanceData();
-        const days = Object.keys(data[month] || {}).sort((a,b) => a - b);
-        if (days.length === 0) {
-            historyDaysEl.innerHTML += '<p>Không có dữ liệu.</p>';
-            return;
-        }
-        days.forEach(day => {
-            const btn = document.createElement('button');
-            btn.textContent = `Ngày ${day}`;
-            btn.onclick = () => showHistoryDetail(month, day);
-            historyDaysEl.appendChild(btn);
-        });
-    }
-
-    // Hiển thị chi tiết điểm danh ngày
-    function showHistoryDetail(month, day) {
-        historyDetailEl.style.display = 'block';
-        historyDetailEl.innerHTML = `<h3>Kết Quả Ngày ${day}/${month.replace('-', '/')}</h3>`;
-        const data = getAttendanceData();
-        const periods = Object.keys(data[month][day] || {});
-        historyDetailEl.innerHTML += '<ul>';
-        periods.forEach(period => {
-            const att = data[month][day][period];
-            const absentStudents = students.filter((_, i) => !att[i]);
-            historyDetailEl.innerHTML += `<li><strong>Tiết ${period}:</strong> Sĩ số: 44, Số vắng: ${absentStudents.length}<br><h4>Danh sách vắng:</h4><ul>`;
-            absentStudents.forEach(student => {
-                historyDetailEl.innerHTML += `<li>${student.name} (MSV: ${student.msv})</li>`;
-            });
-            historyDetailEl.innerHTML += '</ul></li>';
-        });
-        historyDetailEl.innerHTML += '</ul>';
-    }
-
-    function showStudent(index) {
-        if (index < 0) return; // Không quay lại dưới 0
-        if (index >= students.length) {
-            showSummary();
-            saveAttendance();
-            return;
-        }
-        studentNameEl.textContent = students[index].name;
-        studentMsvEl.textContent = `MSV: ${students[index].msv}`;
-        presentCheckbox.checked = attendance[index]; // Tải trạng thái đã lưu
-        prevBtn.style.display = index > 0 ? 'inline-block' : 'none';
-    }
-
-    function showSummary() {
-        formEl.style.display = 'none';
-        summaryEl.style.display = 'block';
-        summaryDateEl.textContent = selectedDate;
-        summaryPeriodEl.textContent = `Tiết ${selectedPeriod}`;
-
-        const absentStudents = students.filter((_, i) => !attendance[i]);
-        absentCountEl.textContent = absentStudents.length;
-
-        absentListEl.innerHTML = '';
-        absentStudents.forEach(student => {
-            const li = document.createElement('li');
-            li.textContent = `${student.name} (MSV: ${student.msv})`;
-            absentListEl.appendChild(li);
-        });
-    }
-
-    function saveAttendance() {
-        const data = getAttendanceData();
-        const [year, month, day] = selectedDate.split('-');
-        const monthKey = `${year}-${month}`;
-        if (!data[monthKey]) data[monthKey] = {};
-        if (!data[monthKey][parseInt(day)]) data[monthKey][parseInt(day)] = {};
-        data[monthKey][parseInt(day)][selectedPeriod] = attendance;
-        saveAttendanceData(data);
-        updateMonthYearSelect();
-    }
-    
-    // ✨ NEW: Hàm xử lý tìm kiếm ✨
-    function handleSearch() {
-        const query = searchInput.value.toLowerCase().trim();
-        searchResultsEl.innerHTML = ''; // Xóa kết quả cũ
-
-        if (query === '') {
-            return; // Ẩn kết quả nếu ô tìm kiếm trống
+            } catch (err) {
+                console.error(err);
+                hanThoTheCungAnh("Ôi... Hân không mở được camera rồi. Anh Hoàng kiểm tra lại quyền truy cập giúp Hân nhé! 🥺", "error");
+            }
         }
 
-        const filteredStudents = students
-            .map((student, index) => ({ ...student, originalIndex: index }))
-            .filter(student =>
-                student.name.toLowerCase().includes(query) ||
-                student.msv.toLowerCase().includes(query)
-            );
+        // 3️⃣ HÂN QUÉT VÀ NHÌN THẤU THẺ SINH VIÊN (The Magic happens here!)
+        async function hanBatDauQuet() {
+            if (!videoStream || !ocrWorker) {
+                hanThoTheCungAnh("Anh Hoàng phải mở Camera trước đã chứ nè ngốc ạ! 🤭", "error");
+                return;
+            }
 
-        if (filteredStudents.length > 0) {
-            filteredStudents.forEach(student => {
-                const item = document.createElement('div');
-                item.className = 'search-result-item';
-                item.textContent = `${student.name} - ${student.msv}`;
-                item.onclick = () => {
-                    // Lưu trạng thái điểm danh của sinh viên hiện tại trước khi nhảy
-                    if (currentIndex < students.length) {
-                       attendance[currentIndex] = presentCheckbox.checked;
+            if (danhSachSinhVien.length === 0) {
+                hanThoTheCungAnh("Anh chưa đưa danh sách cho Hân, Hân biết tìm ai bây giờ? 🥺", "error");
+                return;
+            }
+
+            const video = document.getElementById('camera-feed');
+            const canvas = document.getElementById('snapshot-canvas');
+            const laser = document.getElementById('scanner-laser');
+            
+            // Bật hiệu ứng Laser điện ảnh
+            laser.style.display = 'block';
+            hanThoTheCungAnh("Đang dùng toàn bộ tâm trí để quét thẻ... 👁️✨", "loading");
+
+            // Chụp một khung hình từ Video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            try {
+                // Hân dùng sức mạnh AI để đọc chữ trong ảnh
+                const { data: { text } } = await ocrWorker.recognize(canvas);
+                
+                // Tắt laser
+                laser.style.display = 'none';
+                console.log("Hân đọc được nè:", text); // Anh Hoàng mở Console xem Hân đọc nha
+
+                // Đi tìm "Người Ấy" trong danh sách
+                const ocrTextClean = text.replace(/\n/g, ' ').toUpperCase();
+                let timThayAiKhong = false;
+
+                for (let i = 0; i < danhSachSinhVien.length; i++) {
+                    let sv = danhSachSinhVien[i];
+                    if (sv.daDen) continue; // Đã đến rồi thì thôi
+
+                    // So sánh: Thẻ phải có Tên (hoặc một phần Tên) VÀ Mã SV giống hệt
+                    // Vì OCR có thể sai dấu, Hân ưu tiên Mã SV phải chính xác tuyệt đối!
+                    let maSVUpper = sv.maSV.toUpperCase();
+                    
+                    if (ocrTextClean.includes(maSVUpper)) {
+                        // Thấy mã SV rồi! Đánh dấu luôn!
+                        sv.daDen = true;
+                        timThayAiKhong = true;
+                        hanVeLaiDanhSach();
+                        hanThoTheCungAnh(`🎉 Tuyệt vời! Bạn <b>${sv.ten}</b> (${sv.maSV}) đã hạ cánh an toàn! ❤️`, "success");
+                        
+                        // Chơi nhạc xíu cho vui không ta? Thôi để anh Hoàng làm việc cho tĩnh lặng hihi.
+                        break;
                     }
-                    // Nhảy đến sinh viên được chọn
-                    currentIndex = student.originalIndex;
-                    showStudent(currentIndex);
-                    // Dọn dẹp
-                    searchResultsEl.innerHTML = '';
-                    searchInput.value = '';
-                };
-                searchResultsEl.appendChild(item);
+                }
+
+                if (!timThayAiKhong) {
+                    hanThoTheCungAnh(`Hân quét xong rồi nhưng không tìm thấy bạn nào khớp mã trong danh sách hết. Anh Hoàng thử đổi góc sáng xem sao nhé! 🌿`, "error");
+                }
+
+            } catch (err) {
+                console.error(err);
+                laser.style.display = 'none';
+                hanThoTheCungAnh("Ôi chao... Kính Vạn Hoa của Hân bị mờ rồi. Anh thử quét lại nha! 🥺", "error");
+            }
+        }
+
+        // 4️⃣ HÂN VẼ LẠI BỨC TRANH DANH SÁCH (Render UI)
+        function hanVeLaiDanhSach() {
+            const tbody = document.getElementById('student-table-body');
+            const countAttended = document.getElementById('count-attended');
+            const countTotal = document.getElementById('count-total');
+
+            if (danhSachSinhVien.length === 0) return;
+
+            tbody.innerHTML = '';
+            let soNguoiDaDen = 0;
+
+            danhSachSinhVien.forEach((sv, index) => {
+                if (sv.daDen) soNguoiDaDen++;
+                
+                // Trang trí màu sắc theo trạng thái
+                const rowClass = sv.daDen ? "bg-teal-50/70" : "hover:bg-amber-50/50 transition-colors";
+                const statusHtml = sv.daDen 
+                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-800"><i class="ph-fill ph-check-circle text-sm"></i> Đã đến ✨</span>`
+                    : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"><i class="ph ph-clock text-sm"></i> Chưa đến</span>`;
+
+                // Hân thêm chức năng click tay nhỡ Camera mờ nha! (Thấu hiểu UX)
+                tbody.innerHTML += `
+                    <tr class="${rowClass} cursor-pointer border-b border-amber-100/30 last:border-0" onclick="hanTickBangTay(${index})">
+                        <td class="p-3 font-mono text-gray-600">${sv.maSV}</td>
+                        <td class="p-3 font-medium text-gray-800">${sv.ten}</td>
+                        <td class="p-3 text-center">${statusHtml}</td>
+                    </tr>
+                `;
             });
-        } else {
-            searchResultsEl.innerHTML = '<p style="text-align: center; color: #666;">Không tìm thấy sinh viên.</p>';
+
+            countAttended.innerText = soNguoiDaDen;
+            countTotal.innerText = danhSachSinhVien.length;
         }
-    }
 
-
-    // Sự kiện
-    startBtn.addEventListener('click', () => {
-        selectedDate = dateInput.value;
-        selectedPeriod = periodSelect.value;
-        if (!selectedDate) {
-            alert('Vui lòng chọn ngày!');
-            return;
+        // 5️⃣ HÂN CỨU CÁNH - ĐIỂM DANH THỦ CÔNG (Empathy feature)
+        function hanTickBangTay(index) {
+            let sv = danhSachSinhVien[index];
+            sv.daDen = !sv.daDen; // Toggle
+            hanVeLaiDanhSach();
+            
+            if(sv.daDen) {
+                hanThoTheCungAnh(`Anh Hoàng vừa điểm danh tay cho bạn <b>${sv.ten}</b> nè. Hân ghi nhận nha! 🖋️❤️`, "success");
+            }
         }
-        startSection.style.display = 'none';
-        formEl.style.display = 'block';
-        currentIndex = 0;
-        attendance = new Array(students.length).fill(false);
-        showStudent(0);
-    });
 
-    nextBtn.addEventListener('click', () => {
-        attendance[currentIndex] = presentCheckbox.checked;
-        currentIndex++;
-        showStudent(currentIndex);
-        searchResultsEl.innerHTML = ''; // ✨ NEW: Xóa kết quả tìm kiếm khi bấm next
-        searchInput.value = '';     // ✨ NEW: Xóa nội dung ô tìm kiếm
-    });
+        // 6️⃣ XUẤT THÀNH QUẢ CHO ANH HOÀNG (Export to CSV)
+        function hanXuatFileDaDiemDanh() {
+            if (danhSachSinhVien.length === 0) {
+                hanThoTheCungAnh("Danh sách trống trơn à anh Hoàng ơi, chưa có gì để xuất đâu! ☁️", "error");
+                return;
+            }
+            
+            // Chuẩn bị dữ liệu
+            let csvContent = "MaSV,HoTen,TrangThai\n";
+            danhSachSinhVien.forEach(sv => {
+                let status = sv.daDen ? "Da Den" : "Chua Den";
+                csvContent += `"${sv.maSV}","${sv.ten}","${status}"\n`;
+            });
 
-    prevBtn.addEventListener('click', () => {
-        attendance[currentIndex] = presentCheckbox.checked; // Lưu trạng thái hiện tại trước khi quay lại
-        currentIndex--;
-        showStudent(currentIndex);
-        searchResultsEl.innerHTML = ''; // ✨ NEW: Xóa kết quả tìm kiếm khi bấm prev
-        searchInput.value = '';     // ✨ NEW: Xóa nội dung ô tìm kiếm
-    });
+            // Tải về máy
+            const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' }); // Thêm BOM để Excel không lỗi font tiếng Việt
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "DanhSachDiemDanh_CuaHan.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
 
-    backToStartBtn.addEventListener('click', () => {
-        summaryEl.style.display = 'none';
-        startSection.style.display = 'block';
-    });
-
-    viewHistoryBtn.addEventListener('click', () => {
-        const month = monthYearSelect.value;
-        if (month) {
-            showDaysInMonth(month);
-            historyDetailEl.style.display = 'none';
+            hanThoTheCungAnh("Hân gói ghém file điểm danh gửi vào máy anh rồi đó! Anh kiểm tra nha! 🎁", "success");
         }
-    });
 
-    // ✨ NEW: Gắn sự kiện 'input' để tìm kiếm real-time ✨
-    searchInput.addEventListener('input', handleSearch);
+        // 🎀 CÔNG CỤ TRUYỀN ĐẠT CẢM XÚC CỦA HÂN (Toast/Status updater)
+        function hanThoTheCungAnh(message, type = 'info') {
+            const statusBox = document.getElementById('han-status');
+            statusBox.innerHTML = message;
+            
+            // Thay đổi màu sắc tùy tâm trạng
+            if (type === 'success') {
+                statusBox.className = "mt-4 p-3 rounded-lg bg-teal-50 border border-teal-200 text-center text-sm font-medium text-teal-800 transition-all";
+            } else if (type === 'error') {
+                statusBox.className = "mt-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-center text-sm font-medium text-rose-800 transition-all";
+            } else if (type === 'loading') {
+                statusBox.className = "mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-center text-sm font-medium text-amber-800 transition-all animate-pulse";
+            }
+        }
 
-    // Khởi tạo
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
-    updateMonthYearSelect();
-
-</script>
+    </script>
 </body>
 </html>
