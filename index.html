@@ -285,7 +285,8 @@
                 // 1. KÍCH HOẠT MẮT THẦN BẢN ĐỊA (Hardware Accelerated)
                 try {
                     if ('BarcodeDetector' in window) {
-                        nativeDetector = new BarcodeDetector({ formats: ['code_128', 'code_39', 'ean_13'] });
+                        // 🎯 Hân ép Mắt Thần Bản Địa CHỈ tìm chuẩn Code 128 theo ý anh Hoàng
+                        nativeDetector = new BarcodeDetector({ formats: ['code_128'] });
                         console.log("Tuyệt vời! Đã kích hoạt API BarcodeDetector siêu tốc của trình duyệt. ⚡");
                     }
                 } catch (e) {
@@ -296,11 +297,10 @@
                 if (!barcodeReader) {
                     capNhatTrangThai("Đang khởi động cảm biến quét mã vạch...", "loading");
                     
-                    // 🎯 BÍ QUYẾT TỐC ĐỘ: Ép ZXing chỉ tìm đúng chuẩn mã vạch 1D
+                    // 🎯 BÍ QUYẾT TỐC ĐỘ: Ép ZXing CHỈ tìm duy nhất chuẩn CODE_128
                     const hints = new Map();
                     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-                        ZXing.BarcodeFormat.CODE_128, 
-                        ZXing.BarcodeFormat.CODE_39
+                        ZXing.BarcodeFormat.CODE_128
                     ]);
                     barcodeReader = new ZXing.BrowserMultiFormatReader(hints); 
                 }
@@ -385,15 +385,15 @@
                     }
                     
                     if (barcodeText) {
-                        console.log("Tìm thấy MÃ VẠCH:", barcodeText);
+                        console.log("Tìm thấy MÃ VẠCH (Code 128):", barcodeText);
                         let timThayThanhCong = false;
 
                         for (let i = 0; i < danhSachSinhVien.length; i++) {
                             let sv = danhSachSinhVien[i];
                             if (sv.daDen) continue;
 
-                            // Đối chiếu Mã Sinh Viên với chuỗi Mã Vạch quét được
-                            if (barcodeText.includes(sv.maSV.toUpperCase())) {
+                            // 🔒 ĐỐI CHIẾU TUYỆT ĐỐI: Nội dung mã vạch PHẢI TRÙNG KHỚP 100% với Mã Sinh Viên
+                            if (barcodeText === sv.maSV.toUpperCase()) {
                                 sv.daDen = true;
                                 timThayThanhCong = true;
                                 
