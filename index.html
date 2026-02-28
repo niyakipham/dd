@@ -10,7 +10,8 @@
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-        
+    
+ 
     <style>
         /* Phong cách màu sắc mới lấy cảm hứng từ ảnh của anh Hoàng */
         body {
@@ -221,16 +222,24 @@
         </div>
     </div>
 
-    <!-- Canvas ẩn xử lý Crop ảnh (Nơi Hân hóa phép tốc độ cho ZXing) -->
+    <!-- Canvas ẩn xử lý Crop ảnh -->
     <canvas id="snapshot-canvas" class="hidden"></canvas>
 
     <script>
+ 
+        let GEMINI_API_KEY = '{{GEMINI_API_KEY}}'; 
+        let GEMINI_MODEL = 'gemini-2.5-flash';
+        
+        // Đường dẫn gọi API thông minh của Hân
+        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
         // ==========================================
 
-        const apiKey = "AIzaSyBfS-h9SGzbxQ5gXCMkWxgfceerTvxBbMQ";
-        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-        // ==========================================
+        // 🗺️ Hàm callback cho Google Maps API
+        function initMap() {
+            // Khi chưa có Key thật, Maps có thể cảnh báo lỗi Console, nhưng anh không cần lo đâu nha!
+            console.log("Hân báo cáo: Gọi hàm initMap thành công! 🗺️✨");
+        }
 
         let danhSachSinhVien = [
             { maSV: '2512101028', ten: 'Nguyễn Kim Bình An', daDen: false },
@@ -632,7 +641,6 @@
 
             while (attempt < maxRetries && !success) {
                 try {
-                    // 🌟 Hân đã khôi phục lại đường dẫn và chìa khóa tương thích với Canvas cho anh test nè!
                     const response = await fetch(GEMINI_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -689,7 +697,7 @@
                     if (attempt < maxRetries) {
                         await new Promise(resolve => setTimeout(resolve, delays[attempt - 1]));
                     } else {
-                        capNhatTrangThai("Mạng đang có chút vấn đề khiến Hân không gọi được Gemini Vision. Anh Hoàng dùng mã vạch đỡ nha 🥺", "error");
+                        capNhatTrangThai("Mạng đang có chút vấn đề", "error");
                         console.error("Gemini Vision API Error:", error);
                     }
                 }
