@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8,12 +9,13 @@
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script async src="https://maps.googleapis.com/maps/api/js?key={{MAPS_API_KEY}}&callback=initMap"></script>
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
         body {
-            background-color: #F4F7F9; /* Nền xám xanh cực nhạt mang phong cách Minimalist */
+            background-color: #F4F7F9;
+            /* Nền xám xanh cực nhạt mang phong cách Minimalist */
             min-height: 100vh;
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #1E293B;
@@ -40,7 +42,7 @@
             box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);
             border-radius: 9999px;
         }
-        
+
         .btn-gradient:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 25px -6px rgba(79, 70, 229, 0.5);
@@ -52,7 +54,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* 🌟 GIAO DIỆN LẤY NÉT CHUẨN ZALO VÀ ẢNH THIẾT KẾ */
+        /* 🌟 GIAO DIỆN LẤY NÉT TINH TẾ (NÂNG CẤP THEO ẢNH) */
         .scan-focus-container {
             position: absolute;
             inset: 0;
@@ -65,61 +67,100 @@
 
         .scan-focus-box {
             position: relative;
-            width: 240px;
-            height: 240px;
-            /* Lớp mặt nạ đen mờ phủ toàn màn hình */
-            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.5);
-            border-radius: 24px;
+            width: 250px;
+            height: 250px;
+            /* Tăng độ sâu của lớp mặt nạ để nổi bật mã QR */
+            box-shadow: 0 0 0 9999px rgba(11, 15, 25, 0.75);
+            border-radius: 20px;
             background: transparent;
             transition: all 0.2s ease;
         }
 
-        /* 4 Góc Bo Viền Sắc Nét */
+        /* 4 Góc L-bracket Sắc Nét, Mềm Mại */
         .corner {
             position: absolute;
-            width: 45px;
-            height: 45px;
-            border: 4px solid #3B82F6; /* Màu xanh chủ đạo */
-            border-radius: 16px;
+            width: 50px;
+            height: 50px;
+            border-color: #3B82F6;
+            /* Màu xanh mượt mà */
+            border-style: solid;
             transition: border-color 0.2s ease;
+            z-index: 10;
         }
-        .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-        .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; }
-        .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; }
-        .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; }
-        
+
+        /* Ẩn bớt 2 cạnh để tạo hình chữ L và bo tròn chuẩn xác */
+        .top-left {
+            top: -2px;
+            left: -2px;
+            border-width: 4px 0 0 4px;
+            border-top-left-radius: 20px;
+        }
+
+        .top-right {
+            top: -2px;
+            right: -2px;
+            border-width: 4px 4px 0 0;
+            border-top-right-radius: 20px;
+        }
+
+        .bottom-left {
+            bottom: -2px;
+            left: -2px;
+            border-width: 0 0 4px 4px;
+            border-bottom-left-radius: 20px;
+        }
+
+        .bottom-right {
+            bottom: -2px;
+            right: -2px;
+            border-width: 0 4px 4px 0;
+            border-bottom-right-radius: 20px;
+        }
+
         /* Hiệu ứng Quét Thành Công */
         .scan-success {
-            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.5), inset 0 0 40px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 0 9999px rgba(11, 15, 25, 0.75), inset 0 0 40px rgba(16, 185, 129, 0.3);
         }
-        
+
         .scan-success .corner {
             border-color: #10B981;
         }
 
         .scan-success .scanner-laser {
-            background: #10B981;
-            box-shadow: 0 0 10px #10B981, 0 0 20px #34D399;
+            background: linear-gradient(90deg, transparent, #10B981, transparent);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.8), 0 0 20px rgba(16, 185, 129, 0.4);
         }
 
-        /* Tia Laser Quét Ngang (Giống hệt ảnh scanner) */
+        /* Tia Laser Quét Ngang - Mờ dần 2 đầu (Glowing Beam) */
         .scanner-laser {
             position: absolute;
-            width: 100%;
+            width: 90%;
+            left: 5%;
             height: 3px;
-            background: #ef4444; /* Laser Đỏ chuyên nghiệp theo ảnh */
-            border-radius: 4px;
-            box-shadow: 0 0 12px #ef4444, 0 0 24px #f87171;
-            animation: scan-zalo 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            top: 0;
-            left: 0;
+            background: linear-gradient(90deg, transparent, #ef4444, transparent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4);
+            animation: scan-zalo 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
         @keyframes scan-zalo {
-            0% { top: 5%; opacity: 0; }
-            15% { opacity: 1; }
-            85% { opacity: 1; }
-            100% { top: 95%; opacity: 0; }
+            0% {
+                top: 5%;
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 1;
+            }
+
+            85% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 95%;
+                opacity: 0;
+            }
         }
 
         .status-pill {
@@ -128,31 +169,54 @@
             border: 1px solid #E2E8F0;
         }
 
-        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
-        
-        table th { font-weight: 700; letter-spacing: 0.05em; color: #64748B; }
-        table tr { transition: background-color 0.2s ease; }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        table th {
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #64748B;
+        }
+
+        table tr {
+            transition: background-color 0.2s ease;
+        }
     </style>
 </head>
+
 <body class="p-3 sm:p-4 md:p-8 flex flex-col items-center">
 
     <header class="text-center mb-5 md:mb-8 w-full max-w-4xl mt-2 md:mt-4 relative z-10 flex flex-col items-center">
-        <div class="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white rounded-[16px] md:rounded-[20px] shadow-[0_8px_20px_rgb(0,0,0,0.06)] border border-slate-100 mb-3 md:mb-4 text-blue-600">
+        <div
+            class="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white rounded-[16px] md:rounded-[20px] shadow-[0_8px_20px_rgb(0,0,0,0.06)] border border-slate-100 mb-3 md:mb-4 text-blue-600">
             <i class="ph-fill ph-qr-code text-xl md:text-2xl"></i>
         </div>
         <h1 class="text-2xl sm:text-3xl md:text-5xl font-extrabold mb-2 text-slate-800 tracking-tight">
             Hệ Thống Điểm Danh <span class="text-gradient">Tự Động</span>
         </h1>
         <p class="text-xs sm:text-sm md:text-base text-slate-500 max-w-lg mx-auto font-medium">
-            Sử dụng công nghệ quét siêu tốc. Vui lòng đưa <b class="text-blue-600">Mã QR</b> vào khung hình.
+            Sử dụng công nghệ quét siêu tốc. Vui lòng đưa <b class="text-blue-600">Mã QR</b> hoặc <b
+                class="text-blue-600">Mã Vạch</b> vào khung hình.
         </p>
     </header>
 
     <main class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 relative z-10">
-        
+
         <!-- CỘT TRÁI: KHU VỰC CAMERA -->
         <div class="lg:col-span-7 flex flex-col h-full">
             <div class="bento-card p-4 sm:p-5 md:p-8 flex-grow flex flex-col">
@@ -162,16 +226,19 @@
                             <i class="ph-fill ph-scan text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="text-base md:text-lg font-bold text-slate-800">Máy Quét Lõi Kép</h2>
-                            <p class="text-[11px] md:text-xs text-slate-500 font-medium">Native & ZXing Engine (0.1s)</p>
+                            <h2 class="text-base md:text-lg font-bold text-slate-800">Máy Quét Đa Tầng</h2>
+                            <p class="text-[11px] md:text-xs text-slate-500 font-medium">Native & Adaptive Engine (0.1s)
+                            </p>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- CAMERA CONTAINER -->
-                <div class="relative w-full bg-slate-900 rounded-[24px] overflow-hidden aspect-[4/3] md:aspect-[16/10] flex items-center justify-center p-1.5 border-4 border-slate-100 shadow-inner">
-                    <video id="camera-feed" class="w-full h-full object-cover rounded-[18px]" autoplay playsinline></video>
-                    
+                <div
+                    class="relative w-full bg-slate-900 rounded-[24px] overflow-hidden aspect-[4/3] md:aspect-[16/10] flex items-center justify-center p-1.5 border-4 border-slate-100 shadow-inner">
+                    <video id="camera-feed" class="w-full h-full object-cover rounded-[18px]" autoplay
+                        playsinline></video>
+
                     <div id="scan-guide" class="scan-focus-container hidden">
                         <!-- 🌟 GIAO DIỆN VUÔNG GÓC CHUẨN (Bo góc ôm lấy mã) -->
                         <div id="focus-box" class="scan-focus-box">
@@ -179,15 +246,18 @@
                             <div class="corner top-right"></div>
                             <div class="corner bottom-left"></div>
                             <div class="corner bottom-right"></div>
-                            
-                            <div class="absolute inset-0 overflow-hidden rounded-[24px]">
+
+                            <!-- 🌟 Đồng bộ góc bo (rounded-[20px]) với viền ngoài để Laser không bị tràn -->
+                            <div class="absolute inset-0 overflow-hidden rounded-[20px]">
                                 <div class="scanner-laser"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-20 bg-slate-50/90 rounded-[24px] backdrop-blur-sm">
-                        <div class="w-14 h-14 bg-white rounded-[16px] shadow-sm mb-3 flex items-center justify-center border border-slate-200">
+                    <div id="camera-placeholder"
+                        class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-20 bg-slate-50/90 rounded-[24px] backdrop-blur-sm">
+                        <div
+                            class="w-14 h-14 bg-white rounded-[16px] shadow-sm mb-3 flex items-center justify-center border border-slate-200">
                             <i class="ph ph-video-camera-slash text-2xl text-slate-400"></i>
                         </div>
                         <p class="font-medium text-slate-500 text-sm">Đang chờ tín hiệu kích hoạt</p>
@@ -195,12 +265,14 @@
                 </div>
 
                 <div class="mt-5 md:mt-6 z-10">
-                    <button id="btn-start-camera" onclick="khoiDongCamera()" class="w-full btn-gradient px-6 py-3.5 md:py-4 font-bold flex items-center justify-center gap-2 text-sm md:text-[15px]">
-                        <i class="ph-fill ph-power text-lg md:text-xl"></i> Khởi Động Máy Quét QR
+                    <button id="btn-start-camera" onclick="khoiDongCamera()"
+                        class="w-full btn-gradient px-6 py-3.5 md:py-4 font-bold flex items-center justify-center gap-2 text-sm md:text-[15px]">
+                        <i class="ph-fill ph-power text-lg md:text-xl"></i> Khởi Động Máy Quét Hệ Thống
                     </button>
                 </div>
-                
-                <div id="system-status" class="mt-4 md:mt-5 p-3 px-4 status-pill flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium text-slate-500 transition-all duration-300">
+
+                <div id="system-status"
+                    class="mt-4 md:mt-5 p-3 px-4 status-pill flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium text-slate-500 transition-all duration-300">
                     <i class="ph-fill ph-info text-slate-400 text-base md:text-lg shrink-0"></i>
                     <span class="truncate">Hệ thống đang sẵn sàng.</span>
                 </div>
@@ -212,39 +284,52 @@
             <div class="bento-card p-4 sm:p-5 md:p-8 flex flex-col h-full max-h-[500px] lg:max-h-[750px]">
                 <div class="flex justify-between items-center gap-2 mb-4 md:mb-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-[14px] bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                        <div
+                            class="w-10 h-10 rounded-[14px] bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
                             <i class="ph-fill ph-users-three text-xl"></i>
                         </div>
                         <div>
                             <h2 class="text-base md:text-lg font-bold text-slate-800 leading-tight">Danh Sách</h2>
                             <p class="text-[11px] md:text-xs text-slate-500 font-medium mt-0.5">
-                                Đã điểm danh: <strong id="count-attended" class="text-blue-600 text-sm">0</strong> / <span id="count-total">0</span>
+                                Đã điểm danh: <strong id="count-attended" class="text-blue-600 text-sm">0</strong> /
+                                <span id="count-total">0</span>
                             </p>
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center gap-2 shrink-0">
-                        <button onclick="moModalThongKe()" class="w-9 h-9 md:w-10 md:h-10 bg-white hover:bg-slate-50 text-purple-500 rounded-full transition-all flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 active:scale-95 shrink-0" title="Thống kê điểm danh">
+                        <button onclick="moModalThongKe()"
+                            class="w-9 h-9 md:w-10 md:h-10 bg-white hover:bg-slate-50 text-purple-500 rounded-full transition-all flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 active:scale-95 shrink-0"
+                            title="Thống kê điểm danh">
                             <i class="ph-fill ph-clock-counter-clockwise text-base md:text-lg"></i>
                         </button>
 
-                        <button onclick="luuDiemDanh()" class="w-9 h-9 md:w-10 md:h-10 bg-white hover:bg-slate-50 text-blue-600 rounded-full transition-all flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 active:scale-95 shrink-0" title="Lưu mốc điểm danh hiện tại">
+                        <button onclick="luuDiemDanh()"
+                            class="w-9 h-9 md:w-10 md:h-10 bg-white hover:bg-slate-50 text-blue-600 rounded-full transition-all flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 active:scale-95 shrink-0"
+                            title="Lưu mốc điểm danh hiện tại">
                             <i class="ph-fill ph-floppy-disk text-base md:text-lg"></i>
                         </button>
-                        
-                        <button onclick="tongHopBaoCao()" class="text-xs md:text-sm bg-white hover:bg-slate-50 text-slate-700 px-3 md:px-4 py-2 md:py-2.5 rounded-full transition-all flex items-center gap-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 font-bold active:scale-95 shrink-0">
-                            <i class="ph-fill ph-paper-plane-tilt text-blue-600"></i> <span class="hidden sm:inline">Xuất File</span><span class="sm:hidden">Xuất</span>
+
+                        <button onclick="tongHopBaoCao()"
+                            class="text-xs md:text-sm bg-white hover:bg-slate-50 text-slate-700 px-3 md:px-4 py-2 md:py-2.5 rounded-full transition-all flex items-center gap-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 font-bold active:scale-95 shrink-0">
+                            <i class="ph-fill ph-paper-plane-tilt text-blue-600"></i> <span
+                                class="hidden sm:inline">Xuất File</span><span class="sm:hidden">Xuất</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="flex-grow overflow-x-auto overflow-y-auto rounded-[16px] md:rounded-[20px] bg-slate-50 border border-slate-100 relative custom-scrollbar">
+                <div
+                    class="flex-grow overflow-x-auto overflow-y-auto rounded-[16px] md:rounded-[20px] bg-slate-50 border border-slate-100 relative custom-scrollbar">
                     <table class="w-full text-left text-xs md:text-sm min-w-[300px]">
                         <thead class="bg-slate-100/80 backdrop-blur-sm sticky top-0 z-10">
                             <tr>
-                                <th class="p-3 md:p-4 text-[10px] uppercase tracking-wider border-b border-slate-200">Mã Sinh Viên</th>
-                                <th class="p-3 md:p-4 text-[10px] uppercase tracking-wider border-b border-slate-200">Họ & Tên</th>
-                                <th class="p-3 md:p-4 text-[10px] uppercase tracking-wider text-right border-b border-slate-200">Trạng Thái</th>
+                                <th class="p-3 md:p-4 text-[10px] uppercase tracking-wider border-b border-slate-200">Mã
+                                    Sinh Viên</th>
+                                <th class="p-3 md:p-4 text-[10px] uppercase tracking-wider border-b border-slate-200">Họ
+                                    & Tên</th>
+                                <th
+                                    class="p-3 md:p-4 text-[10px] uppercase tracking-wider text-right border-b border-slate-200">
+                                    Trạng Thái</th>
                             </tr>
                         </thead>
                         <tbody id="student-table-body" class="divide-y divide-slate-100">
@@ -307,15 +392,18 @@
         ];
 
         let videoStream = null;
-        let qrReader = null; 
-        let nativeDetector = null; 
+        let qrReader = null;
+        let nativeDetector = null;
         let dangBanDocQR = false;
-        let lichSuDiemDanh = []; 
+        let lichSuDiemDanh = [];
 
-        window.onload = function() {
+        // 🌟 Biến đếm vòng lặp để áp dụng "Thuật toán Đa Kính Lọc"
+        let filterPass = 0;
+
+        window.onload = function () {
             renderDanhSach();
             capNhatTrangThai(`<i class="ph-fill ph-check-circle text-blue-500 text-lg"></i> Đã nạp dữ liệu lớp học.`, 'info');
-            
+
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
                 window.speechSynthesis.getVoices();
@@ -333,7 +421,7 @@
 
                 try {
                     if ('BarcodeDetector' in window) {
-                        nativeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+                        nativeDetector = new BarcodeDetector({ formats: ['qr_code', 'code_128'] });
                     }
                 } catch (e) {
                     nativeDetector = null;
@@ -341,24 +429,24 @@
 
                 if (typeof ZXing !== 'undefined' && !qrReader) {
                     const hints = new Map();
-                    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE]);
-                    qrReader = new ZXing.BrowserMultiFormatReader(hints); 
+                    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128]);
+                    qrReader = new ZXing.BrowserMultiFormatReader(hints);
                 }
 
-                videoStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } 
+                videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
                 });
-                
+
                 video.srcObject = videoStream;
                 video.setAttribute("playsinline", true);
                 video.play();
-                
+
                 placeholder.style.display = 'none';
                 btnStart.style.display = 'none';
                 document.getElementById('scan-guide').classList.remove('hidden');
-                
+
                 capNhatTrangThai(`<i class="ph-fill ph-rocket text-blue-500 text-lg"></i> Hệ thống đã sẵn sàng quét.`, "success");
-                
+
                 vongLapQuetQR();
 
             } catch (err) {
@@ -376,9 +464,9 @@
             }
 
             const video = document.getElementById('camera-feed');
-            
+
             if (video.videoWidth > 0 && video.videoHeight > 0) {
-                dangBanDocQR = true; 
+                dangBanDocQR = true;
                 let qrText = null;
 
                 // ⚡ Luồng 1: API Bản địa (Nhanh nhất)
@@ -387,48 +475,79 @@
                         const barcodes = await nativeDetector.detect(video);
                         if (barcodes.length > 0) qrText = barcodes[0].rawValue.toUpperCase();
                     } catch (e) {
-                        nativeDetector = null; 
+                        nativeDetector = null;
                     }
                 }
 
-                // ⚡ Luồng 2: ZXing (Đã sửa lỗi điểm mù khi quét qua màn hình thiết bị khác)
+                // ⚡ Luồng 2: Thuật toán Tối ưu hóa - Đa Kính Lọc (Adaptive Multi-Pass)
                 if (!qrText && qrReader) {
                     try {
                         const canvas = document.getElementById('snapshot-canvas');
                         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                        
-                        // 🌟 KHẮC PHỤC: Không cắt xén và không nén ảnh xuống 300px nữa để bảo toàn điểm ảnh QR.
-                        // Hân giữ nguyên khung hình hoặc chỉ thu lại tối đa 800px để máy vẫn chạy mượt mà ảnh vẫn siêu nét.
+
                         const scale = Math.min(800 / Math.max(video.videoWidth, video.videoHeight), 1);
                         canvas.width = video.videoWidth * scale;
                         canvas.height = video.videoHeight * scale;
-                        
-                        // 🌟 BÍ QUYẾT: Tăng độ tương phản (contrast) và biến thành đen trắng (grayscale) 
-                        // giúp khử triệt để hiện tượng lóa sáng khi webcam nhìn vào màn hình điện thoại.
-                        ctx.filter = 'contrast(130%) grayscale(100%)';
+
+                        // 🌟 THUẬT TOÁN ĐA TẦNG: Thay đổi kính lọc liên tục mỗi 100ms
+                        const pass = filterPass % 4;
+                        filterPass++;
+
+                        if (pass === 0) {
+                            // Tầng 0: Nguyên bản (Màu thật) -> Dành cho quét thẻ cứng/giấy in chuẩn.
+                            ctx.filter = 'none';
+                        } else if (pass === 1) {
+                            // Tầng 1: Đen trắng, Tương phản cao -> Dành cho màn hình điện thoại mờ, Night Shift.
+                            ctx.filter = 'grayscale(100%) contrast(150%)';
+                        } else if (pass === 2) {
+                            // Tầng 2: Giảm độ sáng, Tương phản cực đại -> Dành cho điện thoại đang bị Lóa / Sáng Max (Glare).
+                            ctx.filter = 'brightness(60%) contrast(200%) grayscale(100%)';
+                        } else {
+                            // Tầng 3: Làm nhòe nhẹ, Khử vân sọc Moiré -> Dành cho lúc webcam hiện nhiều đường sọc ngang/dọc.
+                            ctx.filter = 'blur(1px) contrast(300%) grayscale(100%)';
+                        }
+
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        ctx.filter = 'none'; 
-                        
-                        const result = await qrReader.decodeFromCanvas(canvas);
-                        qrText = result.text.toUpperCase();
+                        ctx.filter = 'none'; // Reset filter
+
+                        const imageUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        const img = new Image();
+                        img.src = imageUrl;
+
+                        await new Promise((resolve) => {
+                            img.onload = async () => {
+                                try {
+                                    const result = await qrReader.decodeFromImageElement(img);
+                                    qrText = result.text.toUpperCase();
+                                } catch (e) {
+                                    // Không có mã
+                                }
+                                resolve();
+                            };
+                            img.onerror = resolve;
+                        });
                     } catch (e) {
                         // Không có mã
                     }
                 }
-                
+
                 // KIỂM TRA MÃ
                 if (qrText) {
                     let timThayThanhCong = false;
-                    qrText = qrText.trim();
+                    qrText = qrText.trim().toUpperCase();
+
+                    // 🌟 TỐI ƯU KIẾN TRÚC MÃ: Bóc tách phần đằng sau chữ "SV"
+                    let scannedMsv = qrText;
+                    if (qrText.startsWith("SV")) {
+                        scannedMsv = qrText.substring(2); // Cắt bỏ 2 ký tự đầu tiên (SV)
+                    }
 
                     for (let i = 0; i < danhSachSinhVien.length; i++) {
                         let sv = danhSachSinhVien[i];
                         if (sv.daDen) continue;
 
-                        let msv = sv.maSV.toUpperCase();
-                        let kienTrucQRMoi = "SV" + msv; 
-
-                        if (qrText === kienTrucQRMoi || qrText === msv || qrText.includes(kienTrucQRMoi) || qrText.includes(msv)) {
+                        // 🌟 Dò tìm cực nhanh: Chỉ so sánh mã đã bóc tách với mã của sinh viên
+                        if (scannedMsv === sv.maSV.toUpperCase()) {
                             sv.daDen = true;
                             timThayThanhCong = true;
                             hieuUngThanhCong();
@@ -438,13 +557,13 @@
                             break;
                         }
                     }
-                    
+
                     if (timThayThanhCong) {
                         setTimeout(() => {
                             dangBanDocQR = false;
                             vongLapQuetQR();
-                        }, 500); 
-                        return; 
+                        }, 500);
+                        return;
                     } else {
                         capNhatTrangThai(`<i class="ph-fill ph-warning-circle text-amber-500 text-lg"></i> Mã không hợp lệ: <b class="text-amber-600">${qrText}</b>`, "warning");
                         setTimeout(() => {
@@ -454,18 +573,18 @@
                         return;
                     }
                 }
-            } 
-            
+            }
+
             dangBanDocQR = false;
             setTimeout(vongLapQuetQR, 100);
-        } 
+        }
 
         function docTenSinhVien() {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance('Ô kê');
                 utterance.lang = 'vi-VN';
-                utterance.rate = 1.4; // Tăng tốc nói để mượt hơn
+                utterance.rate = 1.4;
                 utterance.pitch = 1.3;
                 window.speechSynthesis.speak(utterance);
             }
@@ -487,9 +606,9 @@
 
             danhSachSinhVien.forEach((sv, index) => {
                 if (sv.daDen) soNguoiDaDen++;
-                
+
                 const rowClass = sv.daDen ? "bg-blue-50/30" : "hover:bg-slate-50 transition-colors bg-white";
-                const statusHtml = sv.daDen 
+                const statusHtml = sv.daDen
                     ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-blue-100 text-blue-700"><i class="ph-fill ph-check-circle text-xs"></i> Có Mặt</span>`
                     : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-500"><i class="ph-fill ph-minus-circle text-xs"></i> Vắng</span>`;
 
@@ -508,27 +627,24 @@
 
         function diemDanhThuCong(index) {
             let sv = danhSachSinhVien[index];
-            sv.daDen = !sv.daDen; 
+            sv.daDen = !sv.daDen;
             renderDanhSach();
-            if(sv.daDen) capNhatTrangThai(`<i class="ph-fill ph-pencil-simple text-blue-500 text-lg"></i> Cập nhật tay: <b class="text-slate-800">${sv.ten}</b>`, "info");
+            if (sv.daDen) capNhatTrangThai(`<i class="ph-fill ph-pencil-simple text-blue-500 text-lg"></i> Cập nhật tay: <b class="text-slate-800">${sv.ten}</b>`, "info");
             else capNhatTrangThai(`<i class="ph-fill ph-eraser text-amber-500 text-lg"></i> Hủy dữ liệu: <b class="text-slate-800">${sv.ten}</b>`, "warning");
         }
 
         function capNhatTrangThai(message, type = 'info') {
             const statusBox = document.getElementById('system-status');
             statusBox.innerHTML = message;
-            
+
             statusBox.className = "mt-4 md:mt-5 p-3 md:p-3.5 px-4 md:px-5 status-pill flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium transition-all duration-300 ";
-            
+
             if (type === 'success') statusBox.className += "text-emerald-700 border-emerald-200 bg-emerald-50";
             else if (type === 'error') statusBox.className += "text-rose-600 border-rose-200 bg-rose-50";
             else if (type === 'warning') statusBox.className += "text-amber-600 border-amber-200 bg-amber-50";
             else statusBox.className += "text-slate-600 border-slate-200 bg-white";
         }
-        
-        // CÁC HÀM XUẤT BÁO CÁO VÀ TIMELINE ĐƯỢC GIỮ NGUYÊN (Lược bớt phần Modal cho gọn nếu anh cần, nhưng Hân vẫn giữ cấu trúc gốc)
-        // ... (Bên dưới là các hàm Thống Kê, Báo Cáo y hệt bản cũ)
-        
+
         function luuDiemDanh() {
             const soNguoiDaDen = danhSachSinhVien.filter(sv => sv.daDen).length;
             if (soNguoiDaDen === 0) {
@@ -539,13 +655,12 @@
             const now = new Date();
             const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-            
+
             const absent = danhSachSinhVien.length - soNguoiDaDen;
             lichSuDiemDanh.unshift({ id: Date.now(), timeStr: timeStr, dateStr: dateStr, attended: soNguoiDaDen, absent: absent });
             capNhatTrangThai(`<i class="ph-fill ph-floppy-disk text-blue-500 text-lg"></i> Đã lưu phiên lúc ${timeStr}!`, "success");
         }
-        
-        // Bỏ qua render các Modal phụ để code gọn nhẹ (anh có thể thêm lại từ bản cũ nếu cần giao diện modal phức tạp)
     </script>
 </body>
+
 </html>
