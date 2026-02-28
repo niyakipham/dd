@@ -109,99 +109,99 @@
         ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
     </style>
 </head>
-<body class="p-4 md:p-8 flex flex-col items-center">
+<body class="p-3 sm:p-4 md:p-8 flex flex-col items-center">
 
     <div class="bg-glow"></div>
     <div class="bg-glow-2"></div>
 
-    <header class="text-center mb-10 w-full max-w-4xl mt-4 relative z-10">
-        <div class="inline-flex items-center justify-center p-3.5 bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 mb-5 text-blue-600 transform transition hover:scale-105">
-            <i class="ph-fill ph-aperture text-3xl"></i>
+    <header class="text-center mb-6 md:mb-10 w-full max-w-4xl mt-2 md:mt-4 relative z-10">
+        <div class="inline-flex items-center justify-center p-2.5 md:p-3.5 bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 mb-3 md:mb-5 text-blue-600 transform transition hover:scale-105">
+            <i class="ph-fill ph-aperture text-2xl md:text-3xl"></i>
         </div>
-        <h1 class="text-3xl md:text-5xl font-extrabold mb-4 text-slate-800 tracking-tight">
+        <h1 class="text-2xl sm:text-3xl md:text-5xl font-extrabold mb-3 md:mb-4 text-slate-800 tracking-tight">
             Hệ Thống Điểm Danh <span class="text-gradient">Tự Động</span>
         </h1>
-        <p class="text-base md:text-lg text-slate-500 max-w-2xl mx-auto font-medium">
+        <p class="text-sm md:text-lg text-slate-500 max-w-2xl mx-auto font-medium px-2">
             Vui lòng đưa phần <b class="text-blue-600">Mã Vạch</b> trên thẻ sinh viên vào khung hình camera để hệ thống nhận diện tức thì.
         </p>
     </header>
 
-    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8 relative z-10">
         
         <div class="lg:col-span-7 flex flex-col h-full">
-            <div class="bento-card p-6 md:p-8 flex-grow flex flex-col">
-                <div class="flex justify-between items-center mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                            <i class="ph-fill ph-scan text-xl"></i>
+            <div class="bento-card p-5 sm:p-6 md:p-8 flex-grow flex flex-col">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-5 md:mb-6">
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                            <i class="ph-fill ph-scan text-lg md:text-xl"></i>
                         </div>
-                        <h2 class="text-lg font-bold text-slate-800">Máy Quét Toàn Năng</h2>
+                        <h2 class="text-base md:text-lg font-bold text-slate-800">Máy Quét Toàn Năng</h2>
                     </div>
                     
                     <div class="flex items-center gap-2">
-                        <span id="auto-badge" class="hidden px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 text-[11px] font-bold rounded-full animate-pulse flex items-center gap-1.5 shadow-sm">
+                        <span id="auto-badge" class="hidden px-2.5 md:px-3 py-1 md:py-1.5 bg-blue-50 text-blue-600 border border-blue-100 text-[10px] md:text-[11px] font-bold rounded-full animate-pulse flex items-center gap-1 md:gap-1.5 shadow-sm">
                             <i class="ph-fill ph-record text-blue-500"></i> ĐANG QUÉT
                         </span>
                     </div>
                 </div>
                 
-                <div class="relative w-full bg-slate-900 rounded-[20px] overflow-hidden aspect-video flex items-center justify-center shadow-lg border-4 border-slate-50">
+                <div class="relative w-full bg-slate-900 rounded-[16px] md:rounded-[20px] overflow-hidden aspect-video min-h-[220px] sm:min-h-[300px] md:min-h-[auto] flex items-center justify-center shadow-lg border-2 md:border-4 border-slate-50">
                     <video id="camera-feed" class="w-full h-full object-cover" autoplay playsinline></video>
                     
                     <div id="scan-guide" class="absolute inset-0 hidden items-center justify-center pointer-events-none z-10">
-                        <div id="focus-box" class="scan-focus-box w-[80%] h-[50%] relative overflow-hidden">
+                        <div id="focus-box" class="scan-focus-box w-[85%] h-[55%] md:w-[80%] md:h-[50%] relative overflow-hidden">
                             <div class="scanner-laser"></div>
                         </div>
                     </div>
 
                     <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-20 bg-slate-50/80 backdrop-blur-sm">
-                        <div class="w-16 h-16 bg-white rounded-2xl shadow-sm mb-4 flex items-center justify-center border border-slate-100">
-                            <i class="ph ph-video-camera-slash text-3xl text-slate-400"></i>
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm mb-3 md:mb-4 flex items-center justify-center border border-slate-100">
+                            <i class="ph ph-video-camera-slash text-2xl md:text-3xl text-slate-400"></i>
                         </div>
-                        <p class="font-semibold text-slate-500">Camera đang ở trạng thái nghỉ</p>
+                        <p class="font-semibold text-slate-500 text-sm md:text-base">Camera đang ở trạng thái nghỉ</p>
                     </div>
                 </div>
 
-                <div class="mt-6 z-10">
-                    <button id="btn-start-camera" onclick="khoiDongCamera()" class="w-full btn-gradient px-6 py-4 font-bold flex items-center justify-center gap-2 text-base">
-                        <i class="ph-fill ph-play-circle text-xl"></i> Kích Hoạt Máy Quét Không Gian
+                <div class="mt-5 md:mt-6 z-10">
+                    <button id="btn-start-camera" onclick="khoiDongCamera()" class="w-full btn-gradient px-4 md:px-6 py-3.5 md:py-4 font-bold flex items-center justify-center gap-2 text-sm md:text-base shadow-md">
+                        <i class="ph-fill ph-play-circle text-lg md:text-xl"></i> Kích Hoạt Máy Quét Không Gian
                     </button>
                 </div>
                 
-                <div id="system-status" class="mt-5 p-4 rounded-[16px] bg-slate-50 border border-slate-100 flex items-center gap-3 text-sm font-medium text-slate-600 transition-all duration-300">
-                    <i class="ph-fill ph-info text-slate-400 text-lg"></i>
+                <div id="system-status" class="mt-4 md:mt-5 p-3 md:p-4 rounded-[12px] md:rounded-[16px] bg-slate-50 border border-slate-100 flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium text-slate-600 transition-all duration-300">
+                    <i class="ph-fill ph-info text-slate-400 text-base md:text-lg shrink-0"></i>
                     <span>Hệ thống đang ở trạng thái chờ. Vui lòng kích hoạt camera.</span>
                 </div>
             </div>
         </div>
 
         <div class="lg:col-span-5 h-full">
-            <div class="bento-card p-6 md:p-8 flex flex-col h-full max-h-[750px]">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
-                            <i class="ph-fill ph-users-three text-xl"></i>
+            <div class="bento-card p-5 sm:p-6 md:p-8 flex flex-col h-full max-h-[500px] lg:max-h-[750px]">
+                <div class="flex justify-between items-center gap-2 mb-5 md:mb-6">
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                            <i class="ph-fill ph-users-three text-lg md:text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-slate-800 leading-tight">Danh Sách Lớp</h2>
-                            <p class="text-xs text-slate-500 font-medium mt-0.5">
-                                Đã đến: <strong id="count-attended" class="text-blue-600 text-sm">0</strong> / <span id="count-total">0</span>
+                            <h2 class="text-base md:text-lg font-bold text-slate-800 leading-tight">Danh Sách Lớp</h2>
+                            <p class="text-[11px] md:text-xs text-slate-500 font-medium mt-0.5">
+                                Đã đến: <strong id="count-attended" class="text-blue-600 text-xs md:text-sm">0</strong> / <span id="count-total">0</span>
                             </p>
                         </div>
                     </div>
                     
-                    <button onclick="tongHopBaoCao()" class="text-sm bg-white hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-full transition-all flex items-center gap-2 border border-slate-200 shadow-sm font-bold active:scale-95">
-                        <i class="ph-fill ph-export text-blue-600"></i> Xuất Báo Cáo
+                    <button onclick="tongHopBaoCao()" class="text-xs md:text-sm bg-white hover:bg-slate-50 text-slate-700 px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all flex items-center gap-1.5 md:gap-2 border border-slate-200 shadow-sm font-bold active:scale-95 shrink-0">
+                        <i class="ph-fill ph-export text-blue-600"></i> <span class="hidden sm:inline">Xuất Báo Cáo</span><span class="sm:hidden">Xuất</span>
                     </button>
                 </div>
 
-                <div class="flex-grow overflow-auto rounded-[16px] border border-slate-100 bg-slate-50/30 relative">
-                    <table class="w-full text-left text-sm">
+                <div class="flex-grow overflow-x-auto overflow-y-auto rounded-[12px] md:rounded-[16px] border border-slate-100 bg-slate-50/30 relative custom-scrollbar">
+                    <table class="w-full text-left text-sm min-w-[320px]">
                         <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-100">
                             <tr>
-                                <th class="p-4 font-bold text-slate-400 text-xs uppercase tracking-wider">Mã SV</th>
-                                <th class="p-4 font-bold text-slate-400 text-xs uppercase tracking-wider">Họ & Tên</th>
-                                <th class="p-4 font-bold text-slate-400 text-xs uppercase tracking-wider text-right">Trạng Thái</th>
+                                <th class="p-3 md:p-4 font-bold text-slate-400 text-[10px] md:text-xs uppercase tracking-wider">Mã SV</th>
+                                <th class="p-3 md:p-4 font-bold text-slate-400 text-[10px] md:text-xs uppercase tracking-wider">Họ & Tên</th>
+                                <th class="p-3 md:p-4 font-bold text-slate-400 text-[10px] md:text-xs uppercase tracking-wider text-right">Trạng Thái</th>
                             </tr>
                         </thead>
                         <tbody id="student-table-body" class="divide-y divide-slate-100">
@@ -212,38 +212,38 @@
         </div>
     </main>
 
-    <div id="report-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-md transition-all duration-300 opacity-0 pointer-events-none">
-        <div class="bento-card p-6 md:p-8 w-full max-w-2xl mx-4 relative transform transition-all duration-300 scale-95 shadow-2xl shadow-blue-900/10" id="report-modal-content">
+    <div id="report-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-md transition-all duration-300 opacity-0 pointer-events-none p-4">
+        <div class="bento-card p-5 md:p-8 w-full max-w-2xl relative transform transition-all duration-300 scale-95 shadow-2xl shadow-blue-900/10 flex flex-col max-h-[90vh]" id="report-modal-content">
             
-            <div class="flex justify-between items-start mb-5 border-b border-slate-100 pb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                        <i class="ph-fill ph-file-text text-2xl"></i>
+            <div class="flex justify-between items-start mb-4 md:mb-5 border-b border-slate-100 pb-4 md:pb-5 shrink-0">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                        <i class="ph-fill ph-file-text text-xl md:text-2xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-slate-800">Tổng Hợp Báo Cáo</h3>
-                        <p class="text-sm text-slate-500 mt-1 font-medium">Hệ thống đã tự động đối chiếu dữ liệu xin phép.</p>
+                        <h3 class="text-lg md:text-xl font-bold text-slate-800">Tổng Hợp Báo Cáo</h3>
+                        <p class="text-[11px] md:text-sm text-slate-500 mt-0.5 md:mt-1 font-medium">Hệ thống tự động đối chiếu dữ liệu.</p>
                     </div>
                 </div>
-                <button onclick="dongModalBaoCao()" class="text-slate-400 hover:text-slate-600 transition-colors p-2 bg-slate-100 hover:bg-slate-200 rounded-full">
-                    <i class="ph ph-x text-lg"></i>
+                <button onclick="dongModalBaoCao()" class="text-slate-400 hover:text-slate-600 transition-colors p-1.5 md:p-2 bg-slate-100 hover:bg-slate-200 rounded-full shrink-0">
+                    <i class="ph ph-x text-base md:text-lg"></i>
                 </button>
             </div>
             
-            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 relative">
-                <textarea id="report-text-area" rows="12" class="w-full h-full text-slate-700 font-medium resize-none focus:outline-none focus:ring-0 bg-transparent" readonly></textarea>
+            <div class="bg-slate-50 p-3 md:p-5 rounded-xl md:rounded-2xl border border-slate-100 relative flex-grow overflow-hidden flex flex-col">
+                <textarea id="report-text-area" class="w-full h-full min-h-[150px] md:min-h-[250px] text-slate-700 text-sm md:text-base font-medium resize-none focus:outline-none focus:ring-0 bg-transparent custom-scrollbar" readonly></textarea>
                 
-                <div id="copy-toast" class="absolute top-4 right-4 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 opacity-0 transition-opacity shadow-sm">
+                <div id="copy-toast" class="absolute top-2 right-2 md:top-4 md:right-4 bg-emerald-100 text-emerald-700 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold flex items-center gap-1 md:gap-1.5 opacity-0 transition-opacity shadow-sm">
                     <i class="ph-fill ph-check-circle"></i> Đã sao chép!
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end gap-3">
-                <button onclick="dongModalBaoCao()" class="px-6 py-3 rounded-full text-slate-500 font-bold hover:bg-slate-100 transition-colors">
+            <div class="mt-4 md:mt-6 flex justify-end gap-2 md:gap-3 shrink-0">
+                <button onclick="dongModalBaoCao()" class="px-4 md:px-6 py-2 md:py-3 rounded-full text-slate-500 text-sm md:text-base font-bold hover:bg-slate-100 transition-colors">
                     Đóng
                 </button>
-                <button onclick="copyBaoCao()" class="btn-gradient px-8 py-3 font-bold flex items-center gap-2">
-                    <i class="ph-fill ph-copy text-lg"></i> Sao chép tin nhắn
+                <button onclick="copyBaoCao()" class="btn-gradient px-5 md:px-8 py-2 md:py-3 text-sm md:text-base font-bold flex items-center gap-1.5 md:gap-2 shadow-md">
+                    <i class="ph-fill ph-copy text-base md:text-lg"></i> Sao chép
                 </button>
             </div>
         </div>
@@ -253,8 +253,8 @@
 
     <script>
         let GEMINI_API_KEY = '{{GEMINI_API_KEY}}'; 
-        let GEMINI_MODEL = 'gemini-1.5-flash';
-
+        let GEMINI_MODEL = 'gemini-2.5-flash';
+        
         const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
         function initMap() {
@@ -430,7 +430,6 @@
                             }
                         }
                         
-                        // 🌟 TỐI ƯU SIÊU TỐC ĐỘ: Rút ngắn thời gian mở khóa quét từ 1.5s xuống đúng 0.5s!
                         setTimeout(() => {
                             dangBanDocMaVach = false;
                             vongLapQuetMaVach();
@@ -508,7 +507,6 @@
             }
             
             dangBanDocGemini = false;
-            // 🌟 TỐI ƯU SIÊU TỐC ĐỘ: Đẩy nhanh nhịp AI từ 1.5s xuống đúng 0.5s theo yêu cầu!
             setTimeout(vongLapGeminiAI, 500); 
         }
 
@@ -533,7 +531,6 @@
         function hieuUngThanhCong() {
             const focusBox = document.getElementById('focus-box');
             focusBox.classList.add('scan-success');
-            // 🌟 TỐI ƯU GIAO DIỆN: Hiệu ứng nháy thành công giờ cũng kết thúc trong 0.5s!
             setTimeout(() => focusBox.classList.remove('scan-success'), 500);
         }
 
@@ -550,14 +547,14 @@
                 
                 const rowClass = sv.daDen ? "bg-white" : "hover:bg-slate-100/50 transition-colors";
                 const statusHtml = sv.daDen 
-                    ? `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100"><i class="ph-fill ph-check-circle text-sm"></i> Đã Có Mặt</span>`
-                    : `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500 border border-slate-200"><i class="ph-fill ph-minus-circle text-sm"></i> Vắng Mặt</span>`;
+                    ? `<span class="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100"><i class="ph-fill ph-check-circle text-xs sm:text-sm"></i> Đã Có Mặt</span>`
+                    : `<span class="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-slate-100 text-slate-500 border border-slate-200"><i class="ph-fill ph-minus-circle text-xs sm:text-sm"></i> Vắng Mặt</span>`;
 
                 tbody.innerHTML += `
                     <tr class="${rowClass} cursor-pointer border-b border-slate-100/80 last:border-0 group" onclick="diemDanhThuCong(${index})">
-                        <td class="p-4 font-mono text-slate-500 text-sm group-hover:text-blue-600 transition-colors">${sv.maSV}</td>
-                        <td class="p-4 font-semibold text-slate-700">${sv.ten}</td>
-                        <td class="p-4 text-right">${statusHtml}</td>
+                        <td class="p-3 md:p-4 font-mono text-slate-500 text-xs md:text-sm group-hover:text-blue-600 transition-colors align-middle">${sv.maSV}</td>
+                        <td class="p-3 md:p-4 font-semibold text-slate-700 text-xs md:text-sm align-middle">${sv.ten}</td>
+                        <td class="p-3 md:p-4 text-right align-middle whitespace-nowrap">${statusHtml}</td>
                     </tr>
                 `;
             });
@@ -578,7 +575,7 @@
             const statusBox = document.getElementById('system-status');
             statusBox.innerHTML = message;
             
-            statusBox.className = "mt-5 p-4 rounded-[16px] flex items-center gap-3 text-sm font-medium transition-all duration-300 ";
+            statusBox.className = "mt-4 md:mt-5 p-3 md:p-4 rounded-[12px] md:rounded-[16px] flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium transition-all duration-300 ";
             
             if (type === 'success') statusBox.className += "bg-emerald-50 text-emerald-700 border border-emerald-100";
             else if (type === 'error') statusBox.className += "bg-rose-50 text-rose-700 border border-rose-100";
@@ -589,8 +586,35 @@
         async function tongHopBaoCao() {
             capNhatTrangThai(`<i class="ph-fill ph-spinner-gap animate-spin text-blue-500 text-lg"></i> Đang truy xuất dữ liệu hệ thống...`, "loading");
             try {
-                const response = await fetch('https://raw.githubusercontent.com/niyakipham/dd/refs/heads/main/cp.txt');
-                const textData = await response.text();
+                // 🌟 BÍ QUYẾT CỦA HÂN: Tạo một danh sách các trạm trung chuyển (CORS proxy) dự phòng
+                // Để lỡ trạm này kẹt xe thì Hân tự động vòng qua trạm khác ngay lập tức!
+                const docId = '1mQwL6HWog20bK21V7C8fhmj30yhe35xBHAl3nvVkMkY';
+                const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
+                
+                const proxies = [
+                    `https://corsproxy.io/?${encodeURIComponent(exportUrl)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(exportUrl)}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(exportUrl)}`
+                ];
+
+                let textData = null;
+
+                for (let proxyUrl of proxies) {
+                    try {
+                        const response = await fetch(proxyUrl);
+                        if (response.ok) {
+                            textData = await response.text();
+                            break; // Thành công lấy được dữ liệu thì thoát vòng lặp ngay
+                        }
+                    } catch (err) {
+                        console.log("Trạm trung chuyển này đang bận, Hân đang thử trạm khác...");
+                    }
+                }
+
+                if (!textData) {
+                    throw new Error("Tất cả các trạm trung chuyển đều bị nghẽn.");
+                }
+                
                 const danhSachXinPhep = textData.split('\n').map(line => line.trim().toUpperCase()).filter(line => line.length > 0);
 
                 let vangKhongPhep = [];
@@ -619,7 +643,8 @@
                 moModalBaoCao();
                 capNhatTrangThai(`<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i> Báo cáo đã sẵn sàng!`, "success");
             } catch (error) {
-                capNhatTrangThai(`<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Lỗi kết nối đám mây!`, "error");
+                console.error(error);
+                capNhatTrangThai(`<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Lỗi kết nối đám mây! Vui lòng thử lại sau.`, "error");
             }
         }
 
