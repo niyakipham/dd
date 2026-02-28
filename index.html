@@ -6,7 +6,7 @@
     <title>Hệ Thống Điểm Danh Thông Minh</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 🌟 THAY ĐỔI LỚN NHẤT CỦA HÂN: Tích hợp Mắt Thần Quét Mã Vạch ZXing thay cho OCR -->
+    <!-- 🌟 Tích hợp Mắt Thần Quét Mã Vạch ZXing -->
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -225,14 +225,18 @@
     <canvas id="snapshot-canvas" class="hidden"></canvas>
 
     <script>
-        // 🔑 Hân đã xóa bỏ Key của Maps ở đây để tránh nhầm lẫn cho Gemini.
-        // Khi hoạt động trong môi trường Canvas này, apiKey phải là chuỗi rỗng ("") anh nhé!
-        const apiKey = "AIzaSyCGhlNz3FXW1PEHSKqerwGjTJzk0MxBvrc"; 
+        // ==========================================
+        // 🔑 HÂN ĐIỀU CHỈNH LẠI CHÌA KHÓA CHO ANH HOÀNG
+        // ==========================================
+        
+        // 1. DÙNG TRONG TRẠM THỬ NGHIỆM (CANVAS PREVIEW NÀY):
+        // Hân bắt buộc phải để apiKey = "" và dùng model "gemini-2.5-flash-preview-09-2025" 
+        // thì hệ thống mới chạy mượt được anh nha!
 
-        // 🗺️ Hàm callback cho Google Maps API mà anh Hoàng yêu cầu
-        function initMap() {
-            console.log("Hân báo cáo: Google Maps API đã được tải thành công! 🗺️✨");
-        }
+        const apiKey = "AIzaSyCGhlNz3FXW1PEHSKqerwGjTJzk0MxBvrc";
+        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+        // ==========================================
 
         let danhSachSinhVien = [
             { maSV: '2512101028', ten: 'Nguyễn Kim Bình An', daDen: false },
@@ -283,7 +287,7 @@
 
         let videoStream = null;
         let barcodeReader = null; 
-        let nativeDetector = null; // 🚀 Mắt thần bản địa siêu tốc của Hân
+        let nativeDetector = null; 
         let dangBanDocMa = false;
 
         window.onload = function() {
@@ -304,7 +308,6 @@
                 // 1. KÍCH HOẠT MẮT THẦN BẢN ĐỊA (Hardware Accelerated)
                 try {
                     if ('BarcodeDetector' in window) {
-                        // 🎯 Hân ép Mắt Thần Bản Địa CHỈ tìm chuẩn Code 128 theo ý anh Hoàng
                         nativeDetector = new BarcodeDetector({ formats: ['code_128'] });
                         console.log("Tuyệt vời! Đã kích hoạt API BarcodeDetector siêu tốc của trình duyệt. ⚡");
                     }
@@ -312,11 +315,10 @@
                     console.log("Trình duyệt không hỗ trợ BarcodeDetector Native, Hân sẽ dùng ZXing nhé.");
                 }
 
-                // 2. KHỞI TẠO ZXING DỰ PHÒNG (Đã khóa mục tiêu)
+                // 2. KHỞI TẠO ZXING DỰ PHÒNG
                 if (!barcodeReader) {
                     capNhatTrangThai("Đang khởi động cảm biến quét mã vạch...", "loading");
                     
-                    // 🎯 BÍ QUYẾT TỐC ĐỘ: Ép ZXing CHỈ tìm duy nhất chuẩn CODE_128
                     const hints = new Map();
                     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
                         ZXing.BarcodeFormat.CODE_128
@@ -340,7 +342,6 @@
                 placeholder.style.display = 'none';
                 btnStart.style.display = 'none';
                 
-                // Mở khóa nút Quét AI để anh Hoàng có thể "Triệu hồi" Gemini
                 const btnGemini = document.getElementById('btn-gemini-scan');
                 if (btnGemini) {
                     btnGemini.disabled = false;
@@ -353,7 +354,6 @@
                 
                 capNhatTrangThai("Hệ thống đã sẵn sàng. Vui lòng đưa MÃ VẠCH trên thẻ vào khung hình.", "success");
                 
-                // Bắt đầu vòng lặp quét mã vạch
                 vongLapQuetMaVach();
 
             } catch (err) {
@@ -364,7 +364,7 @@
             }
         }
 
-        // VÒNG LẶP AUTO SCAN BẰNG MÃ VẠCH (TỐC ĐỘ < 0.05 GIÂY)
+        // VÒNG LẶP AUTO SCAN BẰNG MÃ VẠCH
         async function vongLapQuetMaVach() {
             if (!videoStream) return;
             
@@ -376,11 +376,10 @@
             const video = document.getElementById('camera-feed');
             
             if (video.videoWidth > 0 && video.videoHeight > 0) {
-                dangBanDocMa = true; // Khóa cửa phòng chờ Hân xử lý
+                dangBanDocMa = true; 
                 let barcodeText = null;
 
                 try {
-                    // CẤP ĐỘ 1: DÙNG MẮT THẦN NATIVE (Cực kỳ nhạy, bắt xa tốt)
                     if (nativeDetector) {
                         const barcodes = await nativeDetector.detect(video);
                         if (barcodes.length > 0) {
@@ -388,12 +387,10 @@
                         }
                     }
 
-                    // CẤP ĐỘ 2: DÙNG ZXING LÀM LÁ CHẮN DỰ PHÒNG
                     if (!barcodeText && barcodeReader) {
                         const canvas = document.getElementById('snapshot-canvas');
                         const ctx = canvas.getContext('2d', { willReadFrequently: true });
                         
-                        // ✂️ Hân chỉ cắt 1 dải ngang ở giữa (rộng 80%, cao 40%) để quét
                         const cropWidth = video.videoWidth * 0.8;
                         const cropHeight = video.videoHeight * 0.4;
                         const startX = (video.videoWidth - cropWidth) / 2;
@@ -406,9 +403,7 @@
                         try {
                             const result = await barcodeReader.decodeFromCanvas(canvas);
                             barcodeText = result.text.toUpperCase();
-                        } catch (e) {
-                            // Không thấy mã thì Hân bỏ qua nha
-                        }
+                        } catch (e) {}
                     }
                     
                     if (barcodeText) {
@@ -419,7 +414,6 @@
                             let sv = danhSachSinhVien[i];
                             if (sv.daDen) continue;
 
-                            // 🔒 ĐỐI CHIẾU TUYỆT ĐỐI: Nội dung mã vạch PHẢI TRÙNG KHỚP 100% với Mã Sinh Viên
                             if (barcodeText === sv.maSV.toUpperCase()) {
                                 sv.daDen = true;
                                 timThayThanhCong = true;
@@ -431,13 +425,12 @@
                             }
                         }
                         
-                        // Hân cho máy nghỉ 1.5 giây để bạn sinh viên kịp cất thẻ đi
                         setTimeout(() => {
                             dangBanDocMa = false;
                             vongLapQuetMaVach();
                         }, 1500);
                         
-                        return; // Dừng luôn vòng lặp hiện tại
+                        return; 
                     }
                 } catch (err) {
                     console.error("Lỗi đọc mã:", err);
@@ -446,16 +439,12 @@
                 dangBanDocMa = false;
             }
 
-            // Hân tiếp tục theo dõi camera không ngừng nghỉ
             setTimeout(vongLapQuetMaVach, 100);
         }
 
         function hieuUngThanhCong() {
             const focusBox = document.getElementById('focus-box');
             focusBox.classList.add('scan-success');
-            
-            // Có thể thêm tiếng "Tít" ở đây nếu anh Hoàng muốn nha
-            
             setTimeout(() => {
                 focusBox.classList.remove('scan-success');
             }, 1000);
@@ -524,7 +513,6 @@
             capNhatTrangThai("Hệ thống đang truy xuất dữ liệu xin phép...", "loading");
             
             try {
-                // Lấy dữ liệu từ file cp.txt anh Hoàng gửi
                 const response = await fetch('https://raw.githubusercontent.com/niyakipham/dd/refs/heads/main/cp.txt');
                 const textData = await response.text();
                 
@@ -631,22 +619,18 @@
             loadingOverlay.classList.remove('opacity-0', 'pointer-events-none');
             loadingOverlay.classList.add('opacity-100');
             
-            // Tạm dừng việc đọc mã vạch tự động để Hân tập trung cho Gemini
             dangBanDocMa = true; 
 
-            // 1. Chụp lại khung hình hiện tại bằng Canvas
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            // Chuyển ảnh sang dạng Base64 JPEG để gửi cho đôi mắt Gemini
             const base64ImageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
 
             const promptText = "Đây là hình ảnh thẻ sinh viên hoặc thẻ nhận diện. Hãy trích xuất dãy số được gọi là 'Mã Sinh Viên' (thường là một dãy số dài khoảng 10 chữ số, ví dụ 2512101067). Chỉ trả về duy nhất dãy số đó, không giải thích, không thêm bất kỳ ký tự nào khác.";
 
-            // Cơ chế Retry an toàn (Exponential backoff) để đảm bảo luôn quét thành công
             const maxRetries = 3;
             const delays = [1000, 2000, 4000];
             let attempt = 0;
@@ -654,8 +638,8 @@
 
             while (attempt < maxRetries && !success) {
                 try {
-                    // 🌟 Hân đã sửa lại đúng tên Model chuẩn (gemini-2.5-flash-preview-09-2025) dành cho hệ thống Canvas này!
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    // 🌟 Hân đã khôi phục lại đường dẫn và chìa khóa tương thích với Canvas cho anh test nè!
+                    const response = await fetch(GEMINI_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -687,7 +671,6 @@
                             let sv = danhSachSinhVien[i];
                             if (sv.daDen) continue;
 
-                            // 🔒 AI Gemini đã đọc toàn bộ thẻ và trả về MSV
                             if (aiText.includes(sv.maSV.toUpperCase())) {
                                 sv.daDen = true;
                                 timThayThanhCong = true;
@@ -718,7 +701,6 @@
                 }
             }
             
-            // Ẩn màn hình loading và mở lại luồng quét mã vạch tự động
             loadingOverlay.classList.remove('opacity-100');
             loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
             
