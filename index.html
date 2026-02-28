@@ -7,8 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script async src="https://maps.googleapis.com/maps/api/js?key={{MAPS_API_KEY}}&callback=initMap"></script>
-    
+   
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
@@ -272,13 +271,9 @@
 
     <script>
         let GEMINI_API_KEY = '{{GEMINI_API_KEY}}'; 
-        let GEMINI_MODEL = 'gemini-1.5-flash';
+        let GEMINI_MODEL = 'gemini-2.5-flash';
         
         const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-
-        function initMap() {
-            console.log("Khởi tạo API Maps thành công.");
-        }
 
         let danhSachSinhVien = [
             { maSV: '2512101028', ten: 'Nguyễn Kim Bình An', daDen: false },
