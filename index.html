@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+ 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
@@ -253,8 +253,8 @@
 
     <script>
         let GEMINI_API_KEY = '{{GEMINI_API_KEY}}'; 
-        let GEMINI_MODEL = 'gemini-2.5-flash';
-        
+        let GEMINI_MODEL = 'gemini-1.5-flash';
+
         const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
         function initMap() {
@@ -430,10 +430,11 @@
                             }
                         }
                         
+                        // 🌟 TỐI ƯU SIÊU TỐC ĐỘ: Rút ngắn thời gian mở khóa quét từ 1.5s xuống đúng 0.5s!
                         setTimeout(() => {
                             dangBanDocMaVach = false;
                             vongLapQuetMaVach();
-                        }, 1500); 
+                        }, 500); 
                         return; 
                     }
                 } catch (err) {}
@@ -507,7 +508,8 @@
             }
             
             dangBanDocGemini = false;
-            setTimeout(vongLapGeminiAI, 1500); 
+            // 🌟 TỐI ƯU SIÊU TỐC ĐỘ: Đẩy nhanh nhịp AI từ 1.5s xuống đúng 0.5s theo yêu cầu!
+            setTimeout(vongLapGeminiAI, 500); 
         }
 
         function docTenSinhVien() {
@@ -531,7 +533,8 @@
         function hieuUngThanhCong() {
             const focusBox = document.getElementById('focus-box');
             focusBox.classList.add('scan-success');
-            setTimeout(() => focusBox.classList.remove('scan-success'), 1000);
+            // 🌟 TỐI ƯU GIAO DIỆN: Hiệu ứng nháy thành công giờ cũng kết thúc trong 0.5s!
+            setTimeout(() => focusBox.classList.remove('scan-success'), 500);
         }
 
         function renderDanhSach() {
