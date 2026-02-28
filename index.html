@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hệ Thống Điểm Danh Thông Minh</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="text/javascript" src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+    <!-- Hân đã gỡ bỏ ZXing Barcode vì giờ chúng ta dùng 100% AI siêu việt rùi! -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-   
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
@@ -18,7 +18,7 @@
             color: #1E293B;
             position: relative;
             overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent; /* Giúp chạm trên điện thoại không bị nháy xám */
+            -webkit-tap-highlight-color: transparent;
         }
         
         .bg-glow {
@@ -86,7 +86,7 @@
             border: 2px dashed rgba(255, 255, 255, 0.6);
             border-radius: 12px;
             box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.55);
-            transition: all 0.2s ease; /* Chuyển động mượt mà cho 0.2s */
+            transition: all 0.2s ease;
         }
         
         .scan-success {
@@ -99,11 +99,11 @@
             position: absolute;
             width: 100%;
             height: 2px;
-            background: #3B82F6;
-            box-shadow: 0 0 15px #3B82F6, 0 0 30px #60A5FA;
+            background: #a855f7; /* Hân đổi màu laser sang tím AI cho ngầu */
+            box-shadow: 0 0 15px #a855f7, 0 0 30px #d8b4fe;
             top: 0;
             left: 0;
-            animation: scan 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            animation: scan 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
         @keyframes scan {
@@ -113,7 +113,7 @@
             100% { top: 100%; opacity: 0; }
         }
 
-        /* Custom Scrollbar Mobile & Desktop */
+        /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
         @media (min-width: 768px) { .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; } }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -128,43 +128,41 @@
 
     <header class="text-center mb-5 md:mb-10 w-full max-w-4xl mt-2 md:mt-4 relative z-10">
         <div class="inline-flex items-center justify-center p-2.5 md:p-3.5 bg-white rounded-[1rem] md:rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 mb-3 md:mb-5 text-blue-600 transform transition hover:scale-105">
-            <i class="ph-fill ph-aperture text-2xl md:text-3xl"></i>
+            <i class="ph-fill ph-magic-wand text-2xl md:text-3xl text-purple-600"></i>
         </div>
         <h1 class="text-2xl sm:text-3xl md:text-5xl font-extrabold mb-2 md:mb-4 text-slate-800 tracking-tight">
-            Hệ Thống Điểm Danh <span class="text-gradient">Tự Động</span>
+            Hệ Thống Điểm Danh <span class="bg-gradient-to-r from-purple-600 to-blue-500 -webkit-background-clip-text text-transparent bg-clip-text">AI</span>
         </h1>
         <p class="text-[13px] sm:text-sm md:text-lg text-slate-500 max-w-2xl mx-auto font-medium px-4">
-            Đưa <b class="text-blue-600">Mã Vạch</b> trên thẻ vào khung hình để nhận diện siêu tốc.
+            Đưa <b class="text-purple-600">Thẻ Sinh Viên</b> vào khung hình để Trí Tuệ Nhân Tạo nhận diện.
         </p>
     </header>
 
     <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-8 relative z-10">
         
-        <!-- CỘT TRÁI: KHU VỰC CAMERA -->
         <div class="lg:col-span-7 flex flex-col h-full">
             <div class="bento-card p-4 sm:p-5 md:p-8 flex-grow flex flex-col">
                 <div class="flex flex-wrap justify-between items-center gap-2 mb-4 md:mb-6">
                     <div class="flex items-center gap-2 md:gap-3">
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
-                            <i class="ph-fill ph-scan text-lg md:text-xl"></i>
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
+                            <i class="ph-fill ph-eye text-lg md:text-xl"></i>
                         </div>
-                        <h2 class="text-base sm:text-lg font-bold text-slate-800">Máy Quét Toàn Năng</h2>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800">Mắt Thần Gemini</h2>
                     </div>
                     
                     <div class="flex items-center gap-1.5 md:gap-2">
-                        <span id="auto-badge" class="hidden px-2 md:px-3 py-1 bg-blue-50 text-blue-600 border border-blue-100 text-[10px] md:text-[11px] font-bold rounded-full animate-pulse flex items-center gap-1 md:gap-1.5 shadow-sm">
-                            <i class="ph-fill ph-record text-blue-500"></i> ĐANG QUÉT
+                        <span id="ai-bg-badge" class="hidden px-2 md:px-3 py-1 bg-purple-50 text-purple-600 border border-purple-100 text-[10px] md:text-[11px] font-bold rounded-full animate-pulse flex items-center gap-1 md:gap-1.5 shadow-sm">
+                            <i class="ph-fill ph-sparkle text-purple-500"></i> ĐANG QUÉT AI
                         </span>
                     </div>
                 </div>
                 
-                <!-- 🌟 TỐI ƯU MOBILE: Đổi aspect-video thành aspect-[4/3] trên điện thoại để camera không bị dẹt -->
                 <div class="relative w-full bg-slate-900 rounded-[16px] md:rounded-[20px] overflow-hidden aspect-[4/3] md:aspect-video flex items-center justify-center shadow-lg border-2 md:border-4 border-slate-50">
                     <video id="camera-feed" class="w-full h-full object-cover" autoplay playsinline></video>
                     
                     <div id="scan-guide" class="absolute inset-0 hidden items-center justify-center pointer-events-none z-10">
-                        <!-- 🌟 TỐI ƯU MOBILE: Khung lấy nét rộng ngang, ngắn dọc để vừa vặn mã vạch -->
-                        <div id="focus-box" class="scan-focus-box w-[85%] h-[40%] md:w-[80%] md:h-[50%] relative overflow-hidden">
+                        <!-- 🌟 Hân đã điều chỉnh lại khung lấy nét to và vuông vức hơn để chứa trọn Thẻ Sinh Viên -->
+                        <div id="focus-box" class="scan-focus-box w-[75%] h-[60%] md:w-[60%] md:h-[70%] relative overflow-hidden">
                             <div class="scanner-laser"></div>
                         </div>
                     </div>
@@ -178,12 +176,11 @@
                 </div>
 
                 <div class="mt-4 md:mt-6 z-10">
-                    <button id="btn-start-camera" onclick="khoiDongCamera()" class="w-full btn-gradient px-4 md:px-6 py-3.5 md:py-4 font-bold flex items-center justify-center gap-2 text-[15px] md:text-base shadow-md">
-                        <i class="ph-fill ph-play-circle text-lg md:text-xl"></i> Bật Camera Quét Thẻ
+                    <button id="btn-start-camera" onclick="khoiDongCamera()" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 md:px-6 py-3.5 md:py-4 font-bold flex items-center justify-center gap-2 text-[15px] md:text-base shadow-md rounded-full transition-transform active:scale-95">
+                        <i class="ph-fill ph-play-circle text-lg md:text-xl"></i> Bật Camera Quét AI
                     </button>
                 </div>
                 
-                <!-- Thông báo trạng thái tối ưu UI cho ngón tay -->
                 <div id="system-status" class="mt-3 md:mt-5 p-3 md:p-4 rounded-[12px] md:rounded-[16px] bg-slate-50 border border-slate-100 flex items-center gap-2 md:gap-3 text-[12px] sm:text-[13px] md:text-sm font-medium text-slate-600 transition-all duration-300">
                     <i class="ph-fill ph-info text-slate-400 text-base md:text-lg shrink-0"></i>
                     <span>Hệ thống đang ở trạng thái chờ. Vui lòng kích hoạt camera.</span>
@@ -191,7 +188,6 @@
             </div>
         </div>
 
-        <!-- CỘT PHẢI: DANH SÁCH SINH VIÊN -->
         <div class="lg:col-span-5 h-full">
             <div class="bento-card p-4 sm:p-5 md:p-8 flex flex-col h-full max-h-[450px] lg:max-h-[750px]">
                 <div class="flex justify-between items-center gap-2 mb-4 md:mb-6">
@@ -267,6 +263,7 @@
         </div>
     </div>
 
+    <!-- Canvas ẩn xử lý Crop ảnh -->
     <canvas id="snapshot-canvas" class="hidden"></canvas>
 
     <script>
@@ -274,6 +271,7 @@
         let GEMINI_MODEL = 'gemini-2.5-flash';
         
         const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
 
         let danhSachSinhVien = [
             { maSV: '2512101028', ten: 'Nguyễn Kim Bình An', daDen: false },
@@ -323,10 +321,6 @@
         ];
 
         let videoStream = null;
-        let barcodeReader = null; 
-        let nativeDetector = null; 
-        
-        let dangBanDocMaVach = false; 
         let dangBanDocGemini = false; 
 
         window.onload = function() {
@@ -348,21 +342,7 @@
                 btnStart.innerHTML = `<i class="ph-fill ph-spinner-gap animate-spin text-lg md:text-xl"></i> Khởi tạo môi trường...`;
                 btnStart.disabled = true;
 
-                try {
-                    if ('BarcodeDetector' in window) {
-                        nativeDetector = new BarcodeDetector({ formats: ['code_128'] });
-                    }
-                } catch (e) {
-                    console.log("BarcodeDetector không hỗ trợ, sử dụng thư viện ZXing dự phòng.");
-                }
-
-                if (!barcodeReader) {
-                    const hints = new Map();
-                    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.CODE_128]);
-                    barcodeReader = new ZXing.BrowserMultiFormatReader(hints); 
-                }
-
-                // Xin quyền với lý tưởng sắc nét, ưu tiên camera sau
+                // Xin quyền ưu tiên camera sau, nét cao nhất có thể cho AI dễ đọc
                 videoStream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
                 });
@@ -375,11 +355,14 @@
                 btnStart.style.display = 'none';
                 document.getElementById('scan-guide').classList.remove('hidden');
                 document.getElementById('scan-guide').classList.add('flex');
-                document.getElementById('auto-badge').classList.remove('hidden');
                 
-                capNhatTrangThai(`<i class="ph-fill ph-rocket text-blue-500 text-base md:text-lg"></i> Sẵn sàng! AI đang bảo vệ ngầm.`, "success");
+                const aiBadge = document.getElementById('ai-bg-badge');
+                aiBadge.classList.remove('hidden');
+                aiBadge.classList.add('flex');
                 
-                vongLapQuetMaVach(); 
+                capNhatTrangThai(`<i class="ph-fill ph-rocket text-purple-500 text-base md:text-lg"></i> Sẵn sàng! AI đang liên tục thu nhận hình ảnh thẻ.`, "success");
+                
+                // 🌟 CHỈ CHẠY ĐỘNG CƠ AI MẠNH MẼ NHẤT
                 vongLapGeminiAI();   
 
             } catch (err) {
@@ -388,76 +371,6 @@
                 btnStart.innerHTML = `<i class="ph-fill ph-arrow-counter-clockwise text-lg md:text-xl"></i> Thử Kích Hoạt Lại`;
                 btnStart.disabled = false;
             }
-        }
-
-        async function vongLapQuetMaVach() {
-            if (!videoStream) return;
-            if (dangBanDocMaVach) {
-                // ⚡ Ép xung: Giảm độ trễ chờ lặp lại xuống 50ms (Gần như liên tục)
-                setTimeout(vongLapQuetMaVach, 50);
-                return;
-            }
-
-            const video = document.getElementById('camera-feed');
-            
-            if (video.videoWidth > 0 && video.videoHeight > 0) {
-                dangBanDocMaVach = true; 
-                let barcodeText = null;
-
-                try {
-                    if (nativeDetector) {
-                        const barcodes = await nativeDetector.detect(video);
-                        if (barcodes.length > 0) barcodeText = barcodes[0].rawValue.toUpperCase();
-                    }
-
-                    if (!barcodeText && barcodeReader) {
-                        const canvas = document.getElementById('snapshot-canvas');
-                        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                        const cropWidth = video.videoWidth * 0.8;
-                        const cropHeight = video.videoHeight * 0.4;
-                        const startX = (video.videoWidth - cropWidth) / 2;
-                        const startY = (video.videoHeight - cropHeight) / 2;
-
-                        canvas.width = cropWidth;
-                        canvas.height = cropHeight;
-                        
-                        ctx.filter = 'grayscale(100%) contrast(250%)';
-                        ctx.drawImage(video, startX, startY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
-                        ctx.filter = 'none'; 
-                        
-                        try {
-                            const result = await barcodeReader.decodeFromCanvas(canvas);
-                            barcodeText = result.text.toUpperCase();
-                        } catch (e) {}
-                    }
-                    
-                    if (barcodeText) {
-                        for (let i = 0; i < danhSachSinhVien.length; i++) {
-                            let sv = danhSachSinhVien[i];
-                            if (sv.daDen) continue;
-
-                            if (barcodeText === sv.maSV.toUpperCase()) {
-                                sv.daDen = true;
-                                hieuUngThanhCong();
-                                docTenSinhVien();
-                                renderDanhSach();
-                                capNhatTrangThai(`<i class="ph-fill ph-check-circle text-emerald-500 text-base md:text-lg"></i> Điểm danh: <b class="text-slate-800">${sv.ten}</b>`, "success");
-                                break;
-                            }
-                        }
-                        
-                        // ⚡ Ép xung: Giảm thời gian khóa nhịp (cooldown) xuống đúng 200ms (0.2s) theo lệnh anh Hoàng!
-                        setTimeout(() => {
-                            dangBanDocMaVach = false;
-                            vongLapQuetMaVach();
-                        }, 200); 
-                        return; 
-                    }
-                } catch (err) {}
-                
-                dangBanDocMaVach = false;
-            }
-            setTimeout(vongLapQuetMaVach, 50); // ⚡ Giảm delay chờ lặp lại
         }
 
         async function vongLapGeminiAI() {
@@ -469,10 +382,16 @@
             if (video.videoWidth > 0 && video.videoHeight > 0) {
                 dangBanDocGemini = true;
 
+                // 🌟 Hiệu ứng nháy báo AI đang xử lý
+                const aiBadge = document.getElementById('ai-bg-badge');
+                aiBadge.classList.remove('bg-purple-50', 'text-purple-600', 'border-purple-100');
+                aiBadge.classList.add('bg-purple-600', 'text-white', 'border-purple-600', 'shadow-[0_0_15px_rgba(147,51,234,0.5)]');
+
                 try {
                     const canvas = document.createElement('canvas');
-                    const cropWidth = video.videoWidth * 0.7; 
-                    const cropHeight = video.videoHeight * 0.4;
+                    // Cắt một khung ảnh lớn hơn (75% - 80%) để đọc đủ thông tin Tên hoặc Mã SV
+                    const cropWidth = video.videoWidth * 0.8; 
+                    const cropHeight = video.videoHeight * 0.7;
                     const scaleFactor = 0.5; 
                     
                     canvas.width = cropWidth * scaleFactor;
@@ -481,8 +400,9 @@
                     
                     ctx.drawImage(video, (video.videoWidth - cropWidth) / 2, (video.videoHeight - cropHeight) / 2, cropWidth, cropHeight, 0, 0, canvas.width, canvas.height);
                     
-                    const base64ImageData = canvas.toDataURL('image/jpeg', 0.4).split(',')[1];
-                    const promptText = "Trích xuất dãy số Mã Sinh Viên (khoảng 10 chữ số) từ thẻ này. Chỉ in ra dãy số.";
+                    // Nén JPEG nhẹ để bắn API mượt
+                    const base64ImageData = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+                    const promptText = "Trích xuất toàn bộ văn bản từ thẻ này. Liệt kê các văn bản tìm thấy.";
 
                     const response = await fetch(GEMINI_URL, {
                         method: 'POST',
@@ -495,7 +415,7 @@
                                     { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }
                                 ]
                             }],
-                            systemInstruction: { parts: [{ text: "Trích xuất mã sinh viên chính xác tuyệt đối." }] }
+                            systemInstruction: { parts: [{ text: "Đọc rõ ràng mọi văn bản có trong hình." }] }
                         })
                     });
 
@@ -505,26 +425,44 @@
                         
                         if (aiText) {
                             aiText = aiText.trim().toUpperCase();
+                            let timThayThanhCong = false;
+
                             for (let i = 0; i < danhSachSinhVien.length; i++) {
                                 let sv = danhSachSinhVien[i];
-                                if (!sv.daDen && aiText.includes(sv.maSV.toUpperCase())) {
+                                if (sv.daDen) continue;
+
+                                let nameUpper = sv.ten.toUpperCase();
+                                let idUpper = sv.maSV.toUpperCase();
+
+                                // 🌟 Thuật toán Hân: Nhận diện trúng TÊN hoặc MÃ SINH VIÊN là Chốt Đơn!
+                                if (aiText.includes(idUpper) || aiText.includes(nameUpper)) {
                                     sv.daDen = true;
+                                    timThayThanhCong = true;
+                                    
                                     hieuUngThanhCong();
                                     docTenSinhVien();
                                     renderDanhSach();
-                                    capNhatTrangThai(`<i class="ph-fill ph-magic-wand text-purple-500 text-base md:text-lg"></i> AI: <b class="text-slate-800">${sv.ten}</b> (${sv.maSV})`, "success");
+                                    capNhatTrangThai(`<i class="ph-fill ph-check-circle text-purple-600 text-base md:text-lg"></i> AI Nhận Diện: <b class="text-slate-800">${sv.ten}</b>`, "success");
                                     break;
                                 }
                             }
                         }
                     }
                 } catch (error) {
-                    console.log("Lỗi kết nối AI ngầm:", error);
+                    // Lỗi ngầm thì kệ nó, chạy vòng lặp sau
                 }
+
+                // Tắt nháy AI
+                setTimeout(() => {
+                    aiBadge.classList.remove('bg-purple-600', 'text-white', 'border-purple-600', 'shadow-[0_0_15px_rgba(147,51,234,0.5)]');
+                    aiBadge.classList.add('bg-purple-50', 'text-purple-600', 'border-purple-100');
+                }, 300);
             }
             
             dangBanDocGemini = false;
-            setTimeout(vongLapGeminiAI, 1000); // ⚡ AI Ngầm gọi mỗi giây để giữ độ ổn định máy chủ
+            // 🌟 Thiết lập nhịp đập 0.8 giây: Đủ nhanh để không bắt sinh viên đợi lâu, 
+            // và đủ an toàn để Google không báo lỗi quá tải (Rate Limit).
+            setTimeout(vongLapGeminiAI, 800); 
         }
 
         function docTenSinhVien() {
@@ -548,8 +486,7 @@
         function hieuUngThanhCong() {
             const focusBox = document.getElementById('focus-box');
             focusBox.classList.add('scan-success');
-            // ⚡ Ép xung: Giảm thời gian chớp nháy thành công xuống còn 0.2s (200ms)
-            setTimeout(() => focusBox.classList.remove('scan-success'), 200);
+            setTimeout(() => focusBox.classList.remove('scan-success'), 500);
         }
 
         function renderDanhSach() {
@@ -570,7 +507,7 @@
 
                 tbody.innerHTML += `
                     <tr class="${rowClass} cursor-pointer border-b border-slate-100/80 last:border-0 group" onclick="diemDanhThuCong(${index})">
-                        <td class="p-3 md:p-4 font-mono text-slate-500 text-[11px] sm:text-xs md:text-sm group-hover:text-blue-600 transition-colors align-middle">${sv.maSV}</td>
+                        <td class="p-3 md:p-4 font-mono text-slate-500 text-[11px] sm:text-xs md:text-sm group-hover:text-purple-600 transition-colors align-middle">${sv.maSV}</td>
                         <td class="p-3 md:p-4 font-semibold text-slate-700 text-[11px] sm:text-xs md:text-sm align-middle">${sv.ten}</td>
                         <td class="p-3 md:p-4 text-right align-middle whitespace-nowrap">${statusHtml}</td>
                     </tr>
@@ -585,7 +522,7 @@
             let sv = danhSachSinhVien[index];
             sv.daDen = !sv.daDen; 
             renderDanhSach();
-            if(sv.daDen) capNhatTrangThai(`<i class="ph-fill ph-pencil-simple text-blue-500 text-base md:text-lg"></i> Cập nhật thủ công: <b class="text-slate-800">${sv.ten}</b>`, "info");
+            if(sv.daDen) capNhatTrangThai(`<i class="ph-fill ph-pencil-simple text-purple-500 text-base md:text-lg"></i> Cập nhật thủ công: <b class="text-slate-800">${sv.ten}</b>`, "info");
             else capNhatTrangThai(`<i class="ph-fill ph-eraser text-amber-500 text-base md:text-lg"></i> Hủy điểm danh: <b class="text-slate-800">${sv.ten}</b>`, "warning");
         }
 
@@ -602,7 +539,7 @@
         }
 
         async function tongHopBaoCao() {
-            capNhatTrangThai(`<i class="ph-fill ph-spinner-gap animate-spin text-blue-500 text-base md:text-lg"></i> Đang tải dữ liệu...`, "loading");
+            capNhatTrangThai(`<i class="ph-fill ph-spinner-gap animate-spin text-purple-500 text-base md:text-lg"></i> Đang tải dữ liệu...`, "loading");
             try {
                 const docId = '1mQwL6HWog20bK21V7C8fhmj30yhe35xBHAl3nvVkMkY';
                 const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
