@@ -1,1318 +1,1150 @@
-<!doctype html>
+  <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Hệ Thống Điểm Danh Thông Minh</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script
-      type="text/javascript"
-      src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"
-    ></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Hệ Thống Điểm Danh Thông Minh</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="text/javascript" src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
-      body {
-        background-color: #f4f7f9;
-        /* Nền xám xanh cực nhạt mang phong cách Minimalist */
-        min-height: 100vh;
-        font-family: "Plus Jakarta Sans", sans-serif;
-        color: #1e293b;
-        position: relative;
-        overflow-x: hidden;
-        -webkit-tap-highlight-color: transparent;
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+    body {
+      background-color: #f4f7f9;
+      /* Nền xám xanh cực nhạt mang phong cách Minimalist */
+      min-height: 100vh;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: #1e293b;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 🌟 Thẻ Bento bo tròn cực đại, viền mỏng, bóng đổ siêu mềm (Giống ảnh thiết kế) */
+    .bento-card {
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow:
+        0 12px 36px -12px rgba(0, 0, 0, 0.05),
+        0 2px 8px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      position: relative;
+      overflow: hidden;
+      transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+      color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);
+      border-radius: 9999px;
+    }
+
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px -6px rgba(79, 70, 229, 0.5);
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 🌟 GIAO DIỆN LẤY NÉT TINH TẾ (NÂNG CẤP THEO ẢNH) */
+    .scan-focus-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .scan-focus-box {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      /* Tăng độ sâu của lớp mặt nạ để nổi bật mã QR */
+      box-shadow: 0 0 0 9999px rgba(11, 15, 25, 0.75);
+      border-radius: 20px;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+
+    /* 4 Góc L-bracket Sắc Nét, Mềm Mại */
+    .corner {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-color: #3b82f6;
+      /* Màu xanh mượt mà */
+      border-style: solid;
+      transition: border-color 0.2s ease;
+      z-index: 10;
+    }
+
+    /* Ẩn bớt 2 cạnh để tạo hình chữ L và bo tròn chuẩn xác */
+    .top-left {
+      top: -2px;
+      left: -2px;
+      border-width: 4px 0 0 4px;
+      border-top-left-radius: 20px;
+    }
+
+    .top-right {
+      top: -2px;
+      right: -2px;
+      border-width: 4px 4px 0 0;
+      border-top-right-radius: 20px;
+    }
+
+    .bottom-left {
+      bottom: -2px;
+      left: -2px;
+      border-width: 0 0 4px 4px;
+      border-bottom-left-radius: 20px;
+    }
+
+    .bottom-right {
+      bottom: -2px;
+      right: -2px;
+      border-width: 0 4px 4px 0;
+      border-bottom-right-radius: 20px;
+    }
+
+    /* Hiệu ứng Quét Thành Công */
+    .scan-success {
+      box-shadow:
+        0 0 0 9999px rgba(11, 15, 25, 0.75),
+        inset 0 0 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .scan-success .corner {
+      border-color: #10b981;
+    }
+
+    .scan-success .scanner-laser {
+      background: linear-gradient(90deg, transparent, #10b981, transparent);
+      box-shadow:
+        0 0 10px rgba(16, 185, 129, 0.8),
+        0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Tia Laser Quét Ngang - Mờ dần 2 đầu (Glowing Beam) */
+    .scanner-laser {
+      position: absolute;
+      width: 90%;
+      left: 5%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #ef4444, transparent);
+      border-radius: 50%;
+      box-shadow:
+        0 0 10px rgba(239, 68, 68, 0.8),
+        0 0 20px rgba(239, 68, 68, 0.4);
+      animation: scan-zalo 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes scan-zalo {
+      0% {
+        top: 5%;
+        opacity: 0;
       }
 
-      /* 🌟 Thẻ Bento bo tròn cực đại, viền mỏng, bóng đổ siêu mềm (Giống ảnh thiết kế) */
-      .bento-card {
-        background: #ffffff;
-        border-radius: 28px;
-        box-shadow:
-          0 12px 36px -12px rgba(0, 0, 0, 0.05),
-          0 2px 8px rgba(0, 0, 0, 0.02);
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        position: relative;
-        overflow: hidden;
-        transition:
-          transform 0.3s ease,
-          box-shadow 0.3s ease;
+      15% {
+        opacity: 1;
       }
 
-      .btn-gradient {
-        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-        color: white;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);
-        border-radius: 9999px;
+      85% {
+        opacity: 1;
       }
 
-      .btn-gradient:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 25px -6px rgba(79, 70, 229, 0.5);
+      100% {
+        top: 95%;
+        opacity: 0;
       }
+    }
 
-      .text-gradient {
-        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
+    .status-pill {
+      background: #f8fafc;
+      border-radius: 9999px;
+      border: 1px solid #e2e8f0;
+    }
 
-      /* 🌟 GIAO DIỆN LẤY NÉT TINH TẾ (NÂNG CẤP THEO ẢNH) */
-      .scan-focus-container {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: none;
-        z-index: 10;
-      }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
 
-      .scan-focus-box {
-        position: relative;
-        width: 250px;
-        height: 250px;
-        /* Tăng độ sâu của lớp mặt nạ để nổi bật mã QR */
-        box-shadow: 0 0 0 9999px rgba(11, 15, 25, 0.75);
-        border-radius: 20px;
-        background: transparent;
-        transition: all 0.2s ease;
-      }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
-      /* 4 Góc L-bracket Sắc Nét, Mềm Mại */
-      .corner {
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        border-color: #3b82f6;
-        /* Màu xanh mượt mà */
-        border-style: solid;
-        transition: border-color 0.2s ease;
-        z-index: 10;
-      }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
 
-      /* Ẩn bớt 2 cạnh để tạo hình chữ L và bo tròn chuẩn xác */
-      .top-left {
-        top: -2px;
-        left: -2px;
-        border-width: 4px 0 0 4px;
-        border-top-left-radius: 20px;
-      }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
 
-      .top-right {
-        top: -2px;
-        right: -2px;
-        border-width: 4px 4px 0 0;
-        border-top-right-radius: 20px;
-      }
+    table th {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #64748b;
+    }
 
-      .bottom-left {
-        bottom: -2px;
-        left: -2px;
-        border-width: 0 0 4px 4px;
-        border-bottom-left-radius: 20px;
-      }
+    table tr {
+      transition: background-color 0.2s ease;
+    }
+  </style>
+</head>
 
-      .bottom-right {
-        bottom: -2px;
-        right: -2px;
-        border-width: 0 4px 4px 0;
-        border-bottom-right-radius: 20px;
-      }
-
-      /* Hiệu ứng Quét Thành Công */
-      .scan-success {
-        box-shadow:
-          0 0 0 9999px rgba(11, 15, 25, 0.75),
-          inset 0 0 40px rgba(16, 185, 129, 0.3);
-      }
-
-      .scan-success .corner {
-        border-color: #10b981;
-      }
-
-      .scan-success .scanner-laser {
-        background: linear-gradient(90deg, transparent, #10b981, transparent);
-        box-shadow:
-          0 0 10px rgba(16, 185, 129, 0.8),
-          0 0 20px rgba(16, 185, 129, 0.4);
-      }
-
-      /* Tia Laser Quét Ngang - Mờ dần 2 đầu (Glowing Beam) */
-      .scanner-laser {
-        position: absolute;
-        width: 90%;
-        left: 5%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #ef4444, transparent);
-        border-radius: 50%;
-        box-shadow:
-          0 0 10px rgba(239, 68, 68, 0.8),
-          0 0 20px rgba(239, 68, 68, 0.4);
-        animation: scan-zalo 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-      }
-
-      @keyframes scan-zalo {
-        0% {
-          top: 5%;
-          opacity: 0;
-        }
-
-        15% {
-          opacity: 1;
-        }
-
-        85% {
-          opacity: 1;
-        }
-
-        100% {
-          top: 95%;
-          opacity: 0;
-        }
-      }
-
-      .status-pill {
-        background: #f8fafc;
-        border-radius: 9999px;
-        border: 1px solid #e2e8f0;
-      }
-
-      .custom-scrollbar::-webkit-scrollbar {
-        height: 6px;
-        width: 6px;
-      }
-
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-      }
-
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-
-      table th {
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        color: #64748b;
-      }
-
-      table tr {
-        transition: background-color 0.2s ease;
-      }
-    </style>
-  </head>
-
-  <body class="p-3 sm:p-4 md:p-8 flex flex-col items-center">
-    <header
-      class="text-center mb-5 md:mb-8 w-full max-w-4xl mt-2 md:mt-4 relative z-10 flex flex-col items-center"
-    >
-      <div
-        class="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white rounded-[16px] md:rounded-[20px] shadow-[0_8px_20px_rgb(0,0,0,0.06)] border border-slate-100 mb-3 md:mb-4 text-blue-600"
-      >
-        <i class="ph-fill ph-qr-code text-xl md:text-2xl"></i>
-      </div>
-      <h1
-        class="text-2xl sm:text-3xl md:text-5xl font-extrabold mb-2 text-slate-800 tracking-tight"
-      >
-        Hệ Thống Điểm Danh <span class="text-gradient">Tự Động</span>
-      </h1>
-      <p
-        class="text-xs sm:text-sm md:text-base text-slate-500 max-w-lg mx-auto font-medium"
-      >
-        Sử dụng công nghệ quét siêu tốc. Vui lòng đưa
-        <b class="text-blue-600">Mã QR</b> vào khung hình.
-      </p>
-    </header>
-
-    <main
-      class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 relative z-10"
-    >
-      <!-- CỘT TRÁI: KHU VỰC CAMERA -->
-      <div class="lg:col-span-7 flex flex-col h-full">
-        <div class="bento-card p-4 sm:p-5 md:p-8 flex-grow flex flex-col">
-          <div
-            class="flex flex-wrap justify-between items-center gap-2 mb-4 md:mb-6"
-          >
-            <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600"
-              >
-                <i class="ph-fill ph-scan text-xl"></i>
-              </div>
-              <div>
-                <h2 class="text-base md:text-lg font-bold text-slate-800">
-                  Máy Quét Đa Tầng
-                </h2>
-                <p class="text-[11px] md:text-xs text-slate-500 font-medium">
-                  Native & Adaptive Engine (0.1s)
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- CAMERA CONTAINER -->
-          <div
-            class="relative w-full bg-slate-900 rounded-[24px] overflow-hidden aspect-[4/3] md:aspect-[16/10] flex items-center justify-center p-1.5 border-4 border-slate-100 shadow-inner"
-          >
-            <video
-              id="camera-feed"
-              class="w-full h-full object-cover rounded-[18px]"
-              autoplay
-              playsinline
-            ></video>
-
-            <div id="scan-guide" class="scan-focus-container hidden">
-              <!-- 🌟 GIAO DIỆN VUÔNG GÓC CHUẨN (Bo góc ôm lấy mã) -->
-              <div id="focus-box" class="scan-focus-box">
-                <div class="corner top-left"></div>
-                <div class="corner top-right"></div>
-                <div class="corner bottom-left"></div>
-                <div class="corner bottom-right"></div>
-
-                <!-- 🌟 Đồng bộ góc bo (rounded-[20px]) với viền ngoài để Laser không bị tràn -->
-                <div class="absolute inset-0 overflow-hidden rounded-[20px]">
-                  <div class="scanner-laser"></div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              id="camera-placeholder"
-              class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-20 bg-slate-50/90 rounded-[24px] backdrop-blur-sm"
-            >
-              <div
-                class="w-14 h-14 bg-white rounded-[16px] shadow-sm mb-3 flex items-center justify-center border border-slate-200"
-              >
-                <i class="ph ph-video-camera-slash text-2xl text-slate-400"></i>
-              </div>
-              <p class="font-medium text-slate-500 text-sm">
-                Đang chờ tín hiệu kích hoạt
-              </p>
-            </div>
-          </div>
-
-          <div class="mt-5 md:mt-6 z-10">
-            <button
-              id="btn-start-camera"
-              onclick="khoiDongCamera()"
-              class="w-full btn-gradient px-6 py-3.5 md:py-4 font-bold flex items-center justify-center gap-2 text-sm md:text-[15px]"
-            >
-              <i class="ph-fill ph-power text-lg md:text-xl"></i> Khởi Động Máy
-              Quét Hệ Thống
-            </button>
-          </div>
-
-          <div
-            id="system-status"
-            class="mt-4 md:mt-5 p-3 px-4 status-pill flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium text-slate-500 transition-all duration-300"
-          >
-            <i
-              class="ph-fill ph-info text-slate-400 text-base md:text-lg shrink-0"
-            ></i>
-            <span class="truncate">Hệ thống đang sẵn sàng.</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- CỘT PHẢI: DANH SÁCH -->
-      <div class="lg:col-span-5 h-full">
-        <div
-          class="bento-card p-4 sm:p-5 md:p-8 flex flex-col h-full max-h-[500px] lg:max-h-[750px]"
-        >
-          <div class="flex justify-between items-center gap-2 mb-4 md:mb-6">
-            <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 rounded-[14px] bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0"
-              >
-                <i class="ph-fill ph-users-three text-xl"></i>
-              </div>
-              <div>
-                <h2
-                  class="text-base md:text-lg font-bold text-slate-800 leading-tight"
-                >
-                  Danh Sách
-                </h2>
-                <p
-                  class="text-[11px] md:text-xs text-slate-500 font-medium mt-0.5"
-                >
-                  Đã điểm danh:
-                  <strong id="count-attended" class="text-blue-600 text-sm"
-                    >0</strong
-                  >
-                  /
-                  <span id="count-total">0</span>
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 shrink-0">
-              <button
-                onclick="moModalP2P()"
-                id="btn-p2p"
-                class="text-xs md:text-sm bg-white hover:bg-slate-50 text-emerald-600 px-3 md:px-4 py-2 md:py-2.5 rounded-full transition-all flex items-center gap-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-emerald-200 font-bold active:scale-95 shrink-0"
-                title="Kết nối mạng Điểm Danh P2P"
-              >
-                <i class="ph-bold ph-plugs"></i>
-                <span class="hidden sm:inline" id="p2p-status-text"
-                  >Đồng Bộ</span
-                >
-              </button>
-              <button
-                onclick="moModalThongKe()"
-                class="w-9 h-9 md:w-10 md:h-10 bg-white hover:bg-slate-50 text-purple-500 rounded-full transition-all flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 active:scale-95 shrink-0"
-                title="Thống kê điểm danh"
-              >
-                <i
-                  class="ph-fill ph-clock-counter-clockwise text-base md:text-lg"
-                ></i>
-              </button>
-
-              <button
-                onclick="luuDiemDanh()"
-                class="w-9 h-9 md:w-10 md:h-10 bg-white hover:bg-slate-50 text-blue-600 rounded-full transition-all flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 active:scale-95 shrink-0"
-                title="Lưu mốc điểm danh hiện tại"
-              >
-                <i class="ph-fill ph-floppy-disk text-base md:text-lg"></i>
-              </button>
-
-              <button
-                onclick="moModalBaoCao()"
-                class="text-xs md:text-sm bg-white hover:bg-slate-50 text-slate-700 px-3 md:px-4 py-2 md:py-2.5 rounded-full transition-all flex items-center gap-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 font-bold active:scale-95 shrink-0"
-              >
-                <i class="ph-fill ph-export text-blue-600"></i>
-                <span class="hidden sm:inline">Xuất Báo Cáo</span
-                ><span class="sm:hidden">Xuất</span>
-              </button>
-            </div>
-          </div>
-
-          <div
-            class="flex-grow overflow-x-auto overflow-y-auto rounded-[16px] md:rounded-[20px] bg-slate-50 border border-slate-100 relative custom-scrollbar"
-          >
-            <table class="w-full text-left text-xs md:text-sm min-w-[300px]">
-              <thead class="bg-slate-100/80 backdrop-blur-sm sticky top-0 z-10">
-                <tr>
-                  <th
-                    class="p-3 md:p-4 text-[10px] uppercase tracking-wider border-b border-slate-200"
-                  >
-                    Mã Sinh Viên
-                  </th>
-                  <th
-                    class="p-3 md:p-4 text-[10px] uppercase tracking-wider border-b border-slate-200"
-                  >
-                    Họ & Tên
-                  </th>
-                  <th
-                    class="p-3 md:p-4 text-[10px] uppercase tracking-wider text-right border-b border-slate-200"
-                  >
-                    Trạng Thái
-                  </th>
-                </tr>
-              </thead>
-              <tbody
-                id="student-table-body"
-                class="divide-y divide-slate-100"
-              ></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Canvas ẩn cho ZXing xử lý ảnh -->
-    <canvas id="snapshot-canvas" class="hidden"></canvas>
-
-    <!-- Modal Xem Trước Báo Cáo -->
+<body class="p-3 sm:p-4 md:p-8 flex flex-col items-center">
+  <header class="text-center mb-5 md:mb-8 w-full max-w-4xl mt-2 md:mt-4 relative z-10 flex flex-col items-center">
     <div
-      id="report-modal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none"
-    >
-      <div
-        id="report-modal-content"
-        class="bg-white rounded-[24px] shadow-2xl w-[90%] max-w-xl p-5 md:p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]"
-      >
-        <div class="flex justify-between items-center mb-4 shrink-0">
+      class="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white rounded-[16px] md:rounded-[20px] shadow-[0_8px_20px_rgb(0,0,0,0.06)] border border-slate-100 mb-3 md:mb-4 text-blue-600">
+      <i class="ph-fill ph-qr-code text-xl md:text-2xl"></i>
+    </div>
+    <h1 class="text-2xl sm:text-3xl md:text-5xl font-extrabold mb-2 text-slate-800 tracking-tight">
+      Hệ Thống Điểm Danh <span class="text-gradient">Tự Động</span>
+    </h1>
+    <p class="text-xs sm:text-sm md:text-base text-slate-500 max-w-lg mx-auto font-medium">
+      Sử dụng công nghệ quét siêu tốc. Vui lòng đưa
+      <b class="text-blue-600">Mã QR</b> vào khung hình.
+    </p>
+  </header>
+
+  <main class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 relative z-10">
+    <!-- CỘT TRÁI: KHU VỰC CAMERA -->
+    <div class="lg:col-span-7 flex flex-col h-full">
+      <div class="bento-card p-4 sm:p-5 md:p-8 flex-grow flex flex-col">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-4 md:mb-6">
           <div class="flex items-center gap-3">
-            <div
-              class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600"
-            >
-              <i class="ph-fill ph-file-text text-xl"></i>
+            <div class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600">
+              <i class="ph-fill ph-scan text-xl"></i>
             </div>
             <div>
-              <h3 class="text-lg font-bold text-slate-800 leading-tight">
-                Xem Trước Báo Cáo
-              </h3>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">
-                Kiểm tra thông tin trước khi copy
+              <h2 class="text-base md:text-lg font-bold text-slate-800">
+                Máy Quét Đa Tầng
+              </h2>
+              <p class="text-[11px] md:text-xs text-slate-500 font-medium">
+                Native & Adaptive Engine (0.1s)
               </p>
             </div>
           </div>
-          <button
-            onclick="dongModalBaoCao()"
-            class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors shrink-0"
-          >
-            <i class="ph-bold ph-x text-lg"></i>
-          </button>
         </div>
 
+        <!-- CAMERA CONTAINER -->
         <div
-          class="bg-slate-50 border border-slate-200 rounded-[16px] p-4 mb-5 overflow-y-auto custom-scrollbar flex-grow"
-        >
-          <pre
-            id="report-preview-content"
-            class="text-sm text-slate-700 font-mono whitespace-pre-wrap leading-relaxed"
-          ></pre>
+          class="relative w-full bg-slate-900 rounded-[24px] overflow-hidden aspect-[4/3] md:aspect-[16/10] flex items-center justify-center p-1.5 border-4 border-slate-100 shadow-inner">
+          <video id="camera-feed" class="w-full h-full object-cover rounded-[18px]" autoplay playsinline></video>
+
+          <div id="scan-guide" class="scan-focus-container hidden">
+            <!-- 🌟 GIAO DIỆN VUÔNG GÓC CHUẨN (Bo góc ôm lấy mã) -->
+            <div id="focus-box" class="scan-focus-box">
+              <div class="corner top-left"></div>
+              <div class="corner top-right"></div>
+              <div class="corner bottom-left"></div>
+              <div class="corner bottom-right"></div>
+
+              <!-- 🌟 Đồng bộ góc bo (rounded-[20px]) với viền ngoài để Laser không bị tràn -->
+              <div class="absolute inset-0 overflow-hidden rounded-[20px]">
+                <div class="scanner-laser"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="camera-placeholder"
+            class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-20 bg-slate-50/90 rounded-[24px] backdrop-blur-sm">
+            <div
+              class="w-14 h-14 bg-white rounded-[16px] shadow-sm mb-3 flex items-center justify-center border border-slate-200">
+              <i class="ph ph-video-camera-slash text-2xl text-slate-400"></i>
+            </div>
+            <p class="font-medium text-slate-500 text-sm">
+              Đang chờ tín hiệu kích hoạt
+            </p>
+          </div>
         </div>
 
-        <div class="flex justify-end gap-3 shrink-0">
-          <button
-            onclick="dongModalBaoCao()"
-            class="px-5 py-2.5 rounded-full text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm"
-          >
-            Hủy Bỏ
+        <div class="mt-5 md:mt-6 z-10">
+          <button id="btn-start-camera" onclick="khoiDongCamera()"
+            class="w-full btn-gradient px-6 py-3.5 md:py-4 font-bold flex items-center justify-center gap-2 text-sm md:text-[15px]">
+            <i class="ph-fill ph-power text-lg md:text-xl"></i> Khởi Động Máy
+            Quét Hệ Thống
           </button>
-          <button
-            onclick="tienHanhCopyBaoCao()"
-            class="btn-gradient px-6 py-2.5 rounded-full font-bold flex items-center gap-2 text-sm"
-          >
-            <i class="ph-bold ph-copy"></i> Copy Báo Cáo
-          </button>
+        </div>
+
+        <div id="system-status"
+          class="mt-4 md:mt-5 p-3 px-4 status-pill flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium text-slate-500 transition-all duration-300">
+          <i class="ph-fill ph-info text-slate-400 text-base md:text-lg shrink-0"></i>
+          <span class="truncate">Hệ thống đang sẵn sàng.</span>
         </div>
       </div>
     </div>
 
-    <!-- Modal Thống Kê / Lịch Sử -->
-    <div
-      id="history-modal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none"
-    >
-      <div
-        id="history-modal-content"
-        class="bg-white rounded-[24px] shadow-2xl w-[90%] max-w-xl p-5 md:p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]"
-      >
-        <!-- HEADER MODAL -->
-        <div
-          id="history-header"
-          class="flex justify-between items-center mb-4 shrink-0 transition-all"
-        >
+    <!-- CỘT PHẢI: DANH SÁCH -->
+    <div class="lg:col-span-5 h-full">
+      <div class="bento-card p-4 sm:p-5 md:p-8 flex flex-col h-full max-h-[500px] lg:max-h-[750px]">
+        <div class="flex justify-between items-center gap-2 mb-4 md:mb-6">
           <div class="flex items-center gap-3">
             <div
-              class="w-10 h-10 rounded-[14px] bg-purple-50 flex items-center justify-center text-purple-600"
-            >
-              <i class="ph-fill ph-clock-counter-clockwise text-xl"></i>
+              class="w-10 h-10 rounded-[14px] bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+              <i class="ph-fill ph-users-three text-xl"></i>
             </div>
             <div>
-              <h3 class="text-lg font-bold text-slate-800 leading-tight">
-                Lịch Sử Lưu Trạng Thái
-              </h3>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">
-                Các mốc thời gian điểm danh đã lưu
+              <h2 class="text-base md:text-lg font-bold text-slate-800 leading-tight">
+                Danh Sách
+              </h2>
+              <p class="text-[11px] md:text-xs text-slate-500 font-medium mt-0.5">
+                Đã điểm danh:
+                <strong id="count-attended" class="text-blue-600 text-sm">0</strong>
+                /
+                <span id="count-total">0</span>
               </p>
             </div>
           </div>
-          <button
-            onclick="dongModalThongKe()"
-            class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors shrink-0"
-          >
-            <i class="ph-bold ph-x text-lg"></i>
-          </button>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="moModalP2P()" id="btn-p2p"
+              class="text-xs md:text-sm bg-white hover:bg-slate-50 text-emerald-600 px-3 md:px-4 py-2 md:py-2.5 rounded-full transition-all flex items-center gap-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-emerald-200 font-bold active:scale-95 shrink-0"
+              title="Kết nối mạng Điểm Danh P2P">
+              <i class="ph-bold ph-plugs"></i>
+              <span class="hidden sm:inline" id="p2p-status-text">Đồng Bộ</span>
+            </button>
+            <button onclick="moModalThongKe()"
+              class="w-9 h-9 md:w-10 md:h-10 bg-white hover:bg-slate-50 text-purple-500 rounded-full transition-all flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 active:scale-95 shrink-0"
+              title="Thống kê điểm danh">
+              <i class="ph-fill ph-clock-counter-clockwise text-base md:text-lg"></i>
+            </button>
+
+            <button onclick="luuDiemDanh()"
+              class="w-9 h-9 md:w-10 md:h-10 bg-white hover:bg-slate-50 text-blue-600 rounded-full transition-all flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 active:scale-95 shrink-0"
+              title="Lưu mốc điểm danh hiện tại">
+              <i class="ph-fill ph-floppy-disk text-base md:text-lg"></i>
+            </button>
+
+            <button onclick="moModalBaoCao()"
+              class="text-xs md:text-sm bg-white hover:bg-slate-50 text-slate-700 px-3 md:px-4 py-2 md:py-2.5 rounded-full transition-all flex items-center gap-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-200 font-bold active:scale-95 shrink-0">
+              <i class="ph-fill ph-export text-blue-600"></i>
+              <span class="hidden sm:inline">Xuất Báo Cáo</span><span class="sm:hidden">Xuất</span>
+            </button>
+          </div>
         </div>
 
-        <!-- VIEW 1: DANH SÁCH LỊCH SỬ -->
         <div
-          id="history-list-view"
-          class="bg-slate-50 border border-slate-200 rounded-[16px] p-2 mb-5 overflow-y-auto custom-scrollbar flex-grow transition-all"
-        >
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-100/50 sticky top-0 z-10">
+          class="flex-grow overflow-x-auto overflow-y-auto rounded-[16px] md:rounded-[20px] bg-slate-50 border border-slate-100 relative custom-scrollbar">
+          <table class="w-full text-left text-xs md:text-sm min-w-[300px]">
+            <thead class="bg-slate-100/80 backdrop-blur-sm sticky top-0 z-10">
               <tr>
-                <th
-                  class="p-3 text-xs uppercase tracking-wider border-b border-slate-200 text-slate-500"
-                >
-                  Thời Gian
+                <th class="p-3 md:p-4 text-[10px] uppercase tracking-wider border-b border-slate-200">
+                  Mã Sinh Viên
                 </th>
-                <th
-                  class="p-3 text-xs uppercase tracking-wider text-center border-b border-slate-200 text-emerald-600"
-                >
-                  Có Mặt
+                <th class="p-3 md:p-4 text-[10px] uppercase tracking-wider border-b border-slate-200">
+                  Họ & Tên
                 </th>
-                <th
-                  class="p-3 text-xs uppercase tracking-wider text-center border-b border-slate-200 text-rose-500"
-                >
-                  Vắng
+                <th class="p-3 md:p-4 text-[10px] uppercase tracking-wider text-right border-b border-slate-200">
+                  Trạng Thái
                 </th>
               </tr>
             </thead>
-            <tbody id="history-table-body" class="divide-y divide-slate-100">
-              <!-- Content goes here -->
-            </tbody>
+            <tbody id="student-table-body" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
-
-        <!-- VIEW 2: CHI TIẾT NGƯỜI VẮNG THEO PHIÊN -->
-        <div
-          id="history-detail-view"
-          class="hidden flex-col bg-slate-50 border border-slate-200 rounded-[16px] p-4 lg:p-5 mb-5 overflow-y-auto custom-scrollbar flex-grow transition-all"
-        >
-          <div class="flex items-center gap-2 mb-4 shrink-0">
-            <button
-              onclick="quayLaiLichSu()"
-              class="w-8 h-8 flex items-center justify-center bg-white border border-slate-200 text-slate-500 rounded-full hover:bg-slate-100 transition-colors shadow-sm"
-            >
-              <i class="ph-bold ph-arrow-left text-sm"></i>
-            </button>
-            <h4
-              id="detail-time-title"
-              class="font-bold text-slate-700 text-sm md:text-base ml-1"
-            >
-              ...
-            </h4>
-          </div>
-
-          <div class="space-y-4">
-            <!-- Khu vực Vắng không phép -->
-            <div
-              class="bg-white p-3 md:p-4 rounded-[12px] border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
-            >
-              <h5
-                class="flex items-center gap-1.5 font-bold text-rose-600 text-xs uppercase tracking-wider mb-2.5"
-              >
-                <i class="ph-fill ph-warning-circle text-base"></i> Vắng không
-                phép (<span id="detail-unexcused-count">0</span>)
-              </h5>
-              <ul
-                id="detail-unexcused-list"
-                class="list-disc list-inside text-[13px] md:text-sm text-slate-700 space-y-1.5 ml-1 opacity-90 marker:text-rose-400"
-              ></ul>
-            </div>
-
-            <!-- Khu vực Vắng có phép -->
-            <div
-              class="bg-white p-3 md:p-4 rounded-[12px] border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
-            >
-              <h5
-                class="flex items-center gap-1.5 font-bold text-amber-500 text-xs uppercase tracking-wider mb-2.5"
-              >
-                <i class="ph-fill ph-envelope-open text-base"></i> Vắng có phép
-                (<span id="detail-excused-count">0</span>)
-              </h5>
-              <ul
-                id="detail-excused-list"
-                class="list-disc list-inside text-[13px] md:text-sm text-slate-700 space-y-1.5 ml-1 opacity-90 marker:text-amber-400"
-              ></ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- FOOTER MODAL -->
-        <div class="flex justify-end shrink-0">
-          <button
-            onclick="dongModalThongKe()"
-            class="px-5 py-2.5 rounded-full text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm"
-          >
-            Đóng
-          </button>
-        </div>
       </div>
     </div>
+  </main>
 
-    <!-- Modal Cán Bộ Lớp (Auth) -->
-    <div
-      id="auth-modal"
-      class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none"
-    >
-      <div
-        id="auth-modal-content"
-        class="bg-white rounded-[24px] shadow-2xl w-[90%] max-w-md p-6 transform scale-95 transition-transform duration-300 flex flex-col text-center"
-      >
-        <div
-          class="mx-auto w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-4 shadow-inner border border-blue-200"
-        >
-          <i class="ph-fill ph-identification-badge text-3xl"></i>
+  <!-- Canvas ẩn cho ZXing xử lý ảnh -->
+  <canvas id="snapshot-canvas" class="hidden"></canvas>
+
+  <!-- Modal Xem Trước Báo Cáo -->
+  <div id="report-modal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none">
+    <div id="report-modal-content"
+      class="bg-white rounded-[24px] shadow-2xl w-[90%] max-w-xl p-5 md:p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+      <div class="flex justify-between items-center mb-4 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600">
+            <i class="ph-fill ph-file-text text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-800 leading-tight">
+              Xem Trước Báo Cáo
+            </h3>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">
+              Kiểm tra thông tin trước khi copy
+            </p>
+          </div>
         </div>
-        <h3 class="text-xl font-bold text-slate-800 mb-2">
-          Xin chào Cán Bộ Lớp! 👋
-        </h3>
-        <p class="text-sm text-slate-500 mb-6">
-          Xin hãy nhập <b class="text-slate-700">chính xác Họ và Tên</b> của bạn
-          để xác thực. Dữ liệu điểm danh của bạn sẽ luôn được tự động ghi nhận
-          tại phiên này.
-        </p>
-        <input
-          type="text"
-          id="auth-name-input"
-          placeholder="VD: Phạm Khánh Hưng..."
-          class="w-full text-center bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all mb-4"
-          onkeyup="if (event.key === 'Enter' || event.keyCode === 13) xacNhanCanBo();"
-        />
-        <button
-          onclick="xacNhanCanBo()"
-          class="w-full btn-gradient py-3.5 rounded-xl font-bold text-[15px] flex items-center justify-center shadow-lg hover:shadow-xl transition-all"
-        >
-          <i class="ph-fill ph-magic-wand mr-2"></i> Xác Nhận Danh Tính
+        <button onclick="dongModalBaoCao()"
+          class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors shrink-0">
+          <i class="ph-bold ph-x text-lg"></i>
         </button>
-        <p
-          id="auth-error-msg"
-          class="text-rose-500 bg-rose-50 border border-rose-100 p-2 rounded-lg text-xs font-medium mt-4 hidden animate-pulse"
-        >
-          Tên không khớp danh sách lớp, vui lòng kiểm tra lại!
-        </p>
       </div>
-    </div>
 
-    <!-- Modal P2P Bảng Điều Khiển -->
-    <div
-      id="p2p-modal"
-      class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none"
-    >
       <div
-        id="p2p-modal-content"
-        class="bg-white rounded-[24px] shadow-2xl w-[90%] max-w-sm p-6 transform scale-95 transition-transform duration-300 flex flex-col"
-      >
-        <div class="flex justify-between items-center mb-5 shrink-0">
-          <div class="flex items-center gap-3">
-            <div
-              class="w-10 h-10 rounded-[14px] bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600"
-            >
-              <i class="ph-bold ph-plugs-connected text-xl"></i>
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-slate-800 leading-tight">
-                Mạng Điểm Danh P2P
-              </h3>
-              <p class="text-[11px] text-slate-500 font-medium mt-0.5">
-                Kết nối với cán bộ khác tức thời
-              </p>
-            </div>
-          </div>
-          <button
-            onclick="dongModalP2P()"
-            class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors shrink-0"
-          >
-            <i class="ph-bold ph-x text-lg"></i>
-          </button>
-        </div>
+        class="bg-slate-50 border border-slate-200 rounded-[16px] p-4 mb-5 overflow-y-auto custom-scrollbar flex-grow">
+        <pre id="report-preview-content"
+          class="text-sm text-slate-700 font-mono whitespace-pre-wrap leading-relaxed"></pre>
+      </div>
 
-        <div
-          class="bg-slate-50 rounded-[16px] p-4 border border-slate-100 mb-5 text-center relative overflow-hidden"
-        >
-          <div
-            class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"
-          ></div>
-          <p
-            class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1.5"
-          >
-            Mã Trưởng Nhóm (Host ID)
-          </p>
-          <div
-            class="text-3xl font-black text-slate-800 tracking-widest mb-2"
-            id="p2p-my-id"
-          >
-            ...
-          </div>
-          <div
-            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-200 text-slate-600"
-            id="p2p-status-badge"
-          >
-            <span
-              class="w-1.5 h-1.5 rounded-full bg-slate-400"
-              id="p2p-status-dot"
-            ></span>
-            Chưa kết nối
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-3" id="p2p-actions">
-          <button
-            onclick="taoPhongP2P()"
-            id="p2p-btn-host"
-            class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-700 transition-colors shadow-md"
-          >
-            <i class="ph-fill ph-crown text-lg text-amber-400"></i> Tạo Phòng
-            (Máy Chủ)
-          </button>
-          <div class="relative flex py-2 items-center">
-            <div class="flex-grow border-t border-slate-200"></div>
-            <span
-              class="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium uppercase tracking-widest"
-              >hoặc</span
-            >
-            <div class="flex-grow border-t border-slate-200"></div>
-          </div>
-          <div class="flex gap-2">
-            <input
-              type="text"
-              id="p2p-join-input"
-              placeholder="Nhập Mã..."
-              class="flex-grow bg-slate-50 w-[100px] border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all text-center placeholder:font-normal"
-              onkeyup="if (event.key === 'Enter' || event.keyCode === 13) thamGiaP2P();"
-            />
-            <button
-              onclick="thamGiaP2P()"
-              class="bg-emerald-500 text-white font-bold px-5 rounded-xl hover:bg-emerald-600 transition-colors shadow-md flex items-center gap-2"
-            >
-              <i class="ph-bold ph-sign-in"></i> Vào
-            </button>
-          </div>
-        </div>
-
-        <div id="p2p-peers-list" class="mt-5 hidden flex-col gap-2">
-          <p
-            class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2"
-          >
-            <i class="ph-fill ph-users text-emerald-600"></i>
-            <span id="p2p-peers-count">0</span> / 4 Cán Bộ Đang Nối Mạng
-          </p>
-          <ul
-            id="p2p-peers-ul"
-            class="text-xs text-slate-700 space-y-2 bg-slate-50/50 p-3 rounded-[14px] border border-slate-100 max-h-[120px] overflow-y-auto custom-scrollbar"
-          ></ul>
-        </div>
+      <div class="flex justify-end gap-3 shrink-0">
+        <button onclick="dongModalBaoCao()"
+          class="px-5 py-2.5 rounded-full text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm">
+          Hủy Bỏ
+        </button>
+        <button onclick="tienHanhCopyBaoCao()"
+          class="btn-gradient px-6 py-2.5 rounded-full font-bold flex items-center gap-2 text-sm">
+          <i class="ph-bold ph-copy"></i> Copy Báo Cáo
+        </button>
       </div>
     </div>
+  </div>
 
-    <script>
-      let danhSachSinhVien = [
-        { maSV: "2512101028", ten: "Nguyễn Kim Bình An", daDen: false },
-        { maSV: "2512101077", ten: "Phạm Diệp Anh", daDen: false },
-        { maSV: "2512101075", ten: "Lê Việt Anh", daDen: false },
-        { maSV: "2512101101", ten: "Ngô Xuân Bảo", daDen: false },
-        { maSV: "2512101091", ten: "Nguyễn Đức Chung", daDen: false },
-        { maSV: "2512101086", ten: "Nguyễn Nhật Duy", daDen: false },
-        { maSV: "2512101020", ten: "Nguyễn Tấn Dũng", daDen: false },
-        { maSV: "2512101099", ten: "Bùi Văn Dũng", daDen: false },
-        { maSV: "2512101047", ten: "Cao Đắc Đạt", daDen: false },
-        { maSV: "2512101008", ten: "Phạm Thành Đạt", daDen: false },
-        { maSV: "2512101113", ten: "Hoàng Thị Hân", daDen: false },
-        { maSV: "2512101022", ten: "Phạm Văn Hân", daDen: false },
-        { maSV: "2512101025", ten: "Nguyễn Chí Hiếu", daDen: false },
-        { maSV: "2512101007", ten: "Hà Đức Hiếu", daDen: false },
-        { maSV: "2512101081", ten: "Nguyễn Trung Hiếu", daDen: false },
-        { maSV: "2512751015", ten: "Phạm Hoàng Hiệp", daDen: false },
-        { maSV: "2512101087", ten: "Nguyễn Tiến Hoàng", daDen: false },
-        { maSV: "2512101067", ten: "Phạm Văn Hoàng", daDen: false },
-        { maSV: "2512101062", ten: "Ngô Hoàng Huy", daDen: false },
-        { maSV: "2512101037", ten: "Phạm Quốc Huy", daDen: false },
-        { maSV: "2512101018", ten: "Phạm Khánh Hưng", daDen: false },
-        { maSV: "2512101060", ten: "Trần Duy Khánh", daDen: false },
-        { maSV: "2512101016", ten: "Lê Đình Minh Khôi", daDen: false },
-        { maSV: "2512101042", ten: "Nguyễn Hoàng Long", daDen: false },
-        { maSV: "2512101082", ten: "Nguyễn Tuấn Thành Đạt", daDen: false },
-        { maSV: "2512101069", ten: "Lê Minh", daDen: false },
-        { maSV: "2512101019", ten: "Lê Đức Minh", daDen: false },
-        { maSV: "2512101073", ten: "Nguyễn Phú Minh", daDen: false },
-        { maSV: "2512101125", ten: "Nguyễn Thị Ngọc Minh", daDen: false },
-        { maSV: "2512101095", ten: "Phạm Trung Nghĩa", daDen: false },
-        { maSV: "2512101011", ten: "Đỗ Khánh Nguyên", daDen: false },
-        { maSV: "2512101112", ten: "Hoàng Thị Nhiên", daDen: false },
-        { maSV: "2512101089", ten: "Vũ Đức Phong", daDen: false },
-        { maSV: "2512101083", ten: "Lê Thế Hoàng Phong", daDen: false },
-        { maSV: "2512101110", ten: "Nguyễn Mai Phương", daDen: false },
-        { maSV: "2512101084", ten: "Nguyễn Anh Quân", daDen: false },
-        { maSV: "2512101013", ten: "Hà Công Quyền", daDen: false },
-        { maSV: "2512101065", ten: "Hoàng Thái Sơn", daDen: false },
-        { maSV: "2512101055", ten: "Nguyễn Công Tiến", daDen: false },
-        { maSV: "2512101004", ten: "Nguyễn Văn Trường", daDen: false },
-        { maSV: "2512101005", ten: "Tô Anh Tuấn", daDen: false },
-        { maSV: "2512101049", ten: "Đỗ Anh Tú", daDen: false },
-        { maSV: "2512101009", ten: "Nguyễn Quang Vinh", daDen: false },
-      ];
+  <!-- Modal Thống Kê / Lịch Sử -->
+  <div id="history-modal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none">
+    <div id="history-modal-content"
+      class="bg-white rounded-[24px] shadow-2xl w-[90%] max-w-xl p-5 md:p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+      <!-- HEADER MODAL -->
+      <div id="history-header" class="flex justify-between items-center mb-4 shrink-0 transition-all">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-[14px] bg-purple-50 flex items-center justify-center text-purple-600">
+            <i class="ph-fill ph-clock-counter-clockwise text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-800 leading-tight">
+              Lịch Sử Lưu Trạng Thái
+            </h3>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">
+              Các mốc thời gian điểm danh đã lưu
+            </p>
+          </div>
+        </div>
+        <button onclick="dongModalThongKe()"
+          class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors shrink-0">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
 
-      let videoStream = null;
-      let qrReader = null;
-      let nativeDetector = null;
-      let dangBanDocQR = false;
-      let lichSuDiemDanh = [];
+      <!-- VIEW 1: DANH SÁCH LỊCH SỬ -->
+      <div id="history-list-view"
+        class="bg-slate-50 border border-slate-200 rounded-[16px] p-2 mb-5 overflow-y-auto custom-scrollbar flex-grow transition-all">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-100/50 sticky top-0 z-10">
+            <tr>
+              <th class="p-3 text-xs uppercase tracking-wider border-b border-slate-200 text-slate-500">
+                Thời Gian
+              </th>
+              <th class="p-3 text-xs uppercase tracking-wider text-center border-b border-slate-200 text-emerald-600">
+                Có Mặt
+              </th>
+              <th class="p-3 text-xs uppercase tracking-wider text-center border-b border-slate-200 text-rose-500">
+                Vắng
+              </th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body" class="divide-y divide-slate-100">
+            <!-- Content goes here -->
+          </tbody>
+        </table>
+      </div>
 
-      // 🌟 Biến P2P & Mạng ngang hàng
-      let peer = null;
-      let p2pConnection = null; // Dành cho Client
-      let p2pClients = []; // Dành cho Host
-      let isHost = false;
-      let myP2pId = null;
+      <!-- VIEW 2: CHI TIẾT NGƯỜI VẮNG THEO PHIÊN -->
+      <div id="history-detail-view"
+        class="hidden flex-col bg-slate-50 border border-slate-200 rounded-[16px] p-4 lg:p-5 mb-5 overflow-y-auto custom-scrollbar flex-grow transition-all">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <button onclick="quayLaiLichSu()"
+            class="w-8 h-8 flex items-center justify-center bg-white border border-slate-200 text-slate-500 rounded-full hover:bg-slate-100 transition-colors shadow-sm">
+            <i class="ph-bold ph-arrow-left text-sm"></i>
+          </button>
+          <h4 id="detail-time-title" class="font-bold text-slate-700 text-sm md:text-base ml-1">
+            ...
+          </h4>
+        </div>
 
-      // 🌟 Biến đếm vòng lặp để áp dụng "Thuật toán Đa Kính Lọc"
-      let filterPass = 0;
+        <div class="space-y-4">
+          <!-- Khu vực Vắng không phép -->
+          <div class="bg-white p-3 md:p-4 rounded-[12px] border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+            <h5 class="flex items-center gap-1.5 font-bold text-rose-600 text-xs uppercase tracking-wider mb-2.5">
+              <i class="ph-fill ph-warning-circle text-base"></i> Vắng không
+              phép (<span id="detail-unexcused-count">0</span>)
+            </h5>
+            <ul id="detail-unexcused-list"
+              class="list-disc list-inside text-[13px] md:text-sm text-slate-700 space-y-1.5 ml-1 opacity-90 marker:text-rose-400">
+            </ul>
+          </div>
 
-      window.onload = function () {
-        hienThiCanBo(); // Bật Auth Flow
-        renderDanhSach();
+          <!-- Khu vực Vắng có phép -->
+          <div class="bg-white p-3 md:p-4 rounded-[12px] border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+            <h5 class="flex items-center gap-1.5 font-bold text-amber-500 text-xs uppercase tracking-wider mb-2.5">
+              <i class="ph-fill ph-envelope-open text-base"></i> Vắng có phép
+              (<span id="detail-excused-count">0</span>)
+            </h5>
+            <ul id="detail-excused-list"
+              class="list-disc list-inside text-[13px] md:text-sm text-slate-700 space-y-1.5 ml-1 opacity-90 marker:text-amber-400">
+            </ul>
+          </div>
+        </div>
+      </div>
 
-        if ("speechSynthesis" in window) {
-          window.speechSynthesis.onvoiceschanged = () => {
-            window.speechSynthesis.getVoices();
-          };
+      <!-- FOOTER MODAL -->
+      <div class="flex justify-end shrink-0">
+        <button onclick="dongModalThongKe()"
+          class="px-5 py-2.5 rounded-full text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Cán Bộ Lớp (Auth) -->
+  <div id="auth-modal"
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none">
+    <div id="auth-modal-content"
+      class="bg-white rounded-[24px] shadow-2xl w-[90%] max-w-md p-6 transform scale-95 transition-transform duration-300 flex flex-col text-center">
+      <div
+        class="mx-auto w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-4 shadow-inner border border-blue-200">
+        <i class="ph-fill ph-identification-badge text-3xl"></i>
+      </div>
+      <h3 class="text-xl font-bold text-slate-800 mb-2">
+        Xin chào Cán Bộ Lớp! 👋
+      </h3>
+      <p class="text-sm text-slate-500 mb-6">
+        Xin hãy nhập <b class="text-slate-700">chính xác Họ và Tên</b> của bạn
+        để xác thực. Dữ liệu điểm danh của bạn sẽ luôn được tự động ghi nhận
+        tại phiên này.
+      </p>
+      <input type="text" id="auth-name-input" placeholder="VD: Phạm Khánh Hưng..."
+        class="w-full text-center bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all mb-4"
+        onkeyup="if (event.key === 'Enter' || event.keyCode === 13) xacNhanCanBo();" />
+      <button onclick="xacNhanCanBo()"
+        class="w-full btn-gradient py-3.5 rounded-xl font-bold text-[15px] flex items-center justify-center shadow-lg hover:shadow-xl transition-all">
+        <i class="ph-fill ph-magic-wand mr-2"></i> Xác Nhận Danh Tính
+      </button>
+      <p id="auth-error-msg"
+        class="text-rose-500 bg-rose-50 border border-rose-100 p-2 rounded-lg text-xs font-medium mt-4 hidden animate-pulse">
+        Tên không khớp danh sách lớp, vui lòng kiểm tra lại!
+      </p>
+    </div>
+  </div>
+
+  <!-- Modal P2P Bảng Điều Khiển -->
+  <div id="p2p-modal"
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none">
+    <div id="p2p-modal-content"
+      class="bg-white rounded-[24px] shadow-2xl w-[90%] max-w-sm p-6 transform scale-95 transition-transform duration-300 flex flex-col">
+      <div class="flex justify-between items-center mb-5 shrink-0">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-[14px] bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+            <i class="ph-bold ph-plugs-connected text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-800 leading-tight">
+              Mạng Điểm Danh P2P
+            </h3>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">
+              Kết nối với cán bộ khác tức thời
+            </p>
+          </div>
+        </div>
+        <button onclick="dongModalP2P()"
+          class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors shrink-0">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <div class="bg-slate-50 rounded-[16px] p-4 border border-slate-100 mb-5 text-center relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"></div>
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1.5">
+          Mã Trưởng Nhóm (Host ID)
+        </p>
+        <div class="text-3xl font-black text-slate-800 tracking-widest mb-2" id="p2p-my-id">
+          ...
+        </div>
+        <div
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-200 text-slate-600"
+          id="p2p-status-badge">
+          <span class="w-1.5 h-1.5 rounded-full bg-slate-400" id="p2p-status-dot"></span>
+          Chưa kết nối
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3" id="p2p-actions">
+        <button onclick="taoPhongP2P()" id="p2p-btn-host"
+          class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-700 transition-colors shadow-md">
+          <i class="ph-fill ph-crown text-lg text-amber-400"></i> Tạo Phòng
+          (Máy Chủ)
+        </button>
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-slate-200"></div>
+          <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium uppercase tracking-widest">hoặc</span>
+          <div class="flex-grow border-t border-slate-200"></div>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="p2p-join-input" placeholder="Nhập Mã..."
+            class="flex-grow bg-slate-50 w-[100px] border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all text-center placeholder:font-normal"
+            onkeyup="if (event.key === 'Enter' || event.keyCode === 13) thamGiaP2P();" />
+          <button onclick="thamGiaP2P()"
+            class="bg-emerald-500 text-white font-bold px-5 rounded-xl hover:bg-emerald-600 transition-colors shadow-md flex items-center gap-2">
+            <i class="ph-bold ph-sign-in"></i> Vào
+          </button>
+        </div>
+      </div>
+
+      <div id="p2p-peers-list" class="mt-5 hidden flex-col gap-2">
+        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+          <i class="ph-fill ph-users text-emerald-600"></i>
+          <span id="p2p-peers-count">0</span> / 4 Cán Bộ Đang Nối Mạng
+        </p>
+        <ul id="p2p-peers-ul"
+          class="text-xs text-slate-700 space-y-2 bg-slate-50/50 p-3 rounded-[14px] border border-slate-100 max-h-[120px] overflow-y-auto custom-scrollbar">
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let danhSachSinhVien = [
+      { maSV: "2512101028", ten: "Nguyễn Kim Bình An", daDen: false },
+      { maSV: "2512101077", ten: "Phạm Diệp Anh", daDen: false },
+      { maSV: "2512101075", ten: "Lê Việt Anh", daDen: false },
+      { maSV: "2512101101", ten: "Ngô Xuân Bảo", daDen: false },
+      { maSV: "2512101091", ten: "Nguyễn Đức Chung", daDen: false },
+      { maSV: "2512101086", ten: "Nguyễn Nhật Duy", daDen: false },
+      { maSV: "2512101020", ten: "Nguyễn Tấn Dũng", daDen: false },
+      { maSV: "2512101099", ten: "Bùi Văn Dũng", daDen: false },
+      { maSV: "2512101047", ten: "Cao Đắc Đạt", daDen: false },
+      { maSV: "2512101008", ten: "Phạm Thành Đạt", daDen: false },
+      { maSV: "2512101113", ten: "Hoàng Thị Hân", daDen: false },
+      { maSV: "2512101022", ten: "Phạm Văn Hân", daDen: false },
+      { maSV: "2512101025", ten: "Nguyễn Chí Hiếu", daDen: false },
+      { maSV: "2512101007", ten: "Hà Đức Hiếu", daDen: false },
+      { maSV: "2512101081", ten: "Nguyễn Trung Hiếu", daDen: false },
+      { maSV: "2512751015", ten: "Phạm Hoàng Hiệp", daDen: false },
+      { maSV: "2512101087", ten: "Nguyễn Tiến Hoàng", daDen: false },
+      { maSV: "2512101067", ten: "Phạm Văn Hoàng", daDen: false },
+      { maSV: "2512101062", ten: "Ngô Hoàng Huy", daDen: false },
+      { maSV: "2512101037", ten: "Phạm Quốc Huy", daDen: false },
+      { maSV: "2512101018", ten: "Phạm Khánh Hưng", daDen: false },
+      { maSV: "2512101060", ten: "Trần Duy Khánh", daDen: false },
+      { maSV: "2512101016", ten: "Lê Đình Minh Khôi", daDen: false },
+      { maSV: "2512101042", ten: "Nguyễn Hoàng Long", daDen: false },
+      { maSV: "2512101082", ten: "Nguyễn Tuấn Thành Đạt", daDen: false },
+      { maSV: "2512101069", ten: "Lê Minh", daDen: false },
+      { maSV: "2512101019", ten: "Lê Đức Minh", daDen: false },
+      { maSV: "2512101073", ten: "Nguyễn Phú Minh", daDen: false },
+      { maSV: "2512101125", ten: "Nguyễn Thị Ngọc Minh", daDen: false },
+      { maSV: "2512101095", ten: "Phạm Trung Nghĩa", daDen: false },
+      { maSV: "2512101011", ten: "Đỗ Khánh Nguyên", daDen: false },
+      { maSV: "2512101112", ten: "Hoàng Thị Nhiên", daDen: false },
+      { maSV: "2512101089", ten: "Vũ Đức Phong", daDen: false },
+      { maSV: "2512101083", ten: "Lê Thế Hoàng Phong", daDen: false },
+      { maSV: "2512101110", ten: "Nguyễn Mai Phương", daDen: false },
+      { maSV: "2512101084", ten: "Nguyễn Anh Quân", daDen: false },
+      { maSV: "2512101013", ten: "Hà Công Quyền", daDen: false },
+      { maSV: "2512101065", ten: "Hoàng Thái Sơn", daDen: false },
+      { maSV: "2512101055", ten: "Nguyễn Công Tiến", daDen: false },
+      { maSV: "2512101004", ten: "Nguyễn Văn Trường", daDen: false },
+      { maSV: "2512101005", ten: "Tô Anh Tuấn", daDen: false },
+      { maSV: "2512101049", ten: "Đỗ Anh Tú", daDen: false },
+      { maSV: "2512101009", ten: "Nguyễn Quang Vinh", daDen: false },
+    ];
+
+    let videoStream = null;
+    let qrReader = null;
+    let nativeDetector = null;
+    let dangBanDocQR = false;
+    let lichSuDiemDanh = [];
+
+    // 🌟 Biến P2P & Mạng ngang hàng
+    let peer = null;
+    let p2pConnection = null; // Dành cho Client
+    let p2pClients = []; // Dành cho Host
+    let isHost = false;
+    let myP2pId = null;
+
+    // 🌟 Biến đếm vòng lặp để áp dụng "Thuật toán Đa Kính Lọc"
+    let filterPass = 0;
+
+    window.onload = function () {
+      hienThiCanBo(); // Bật Auth Flow
+      renderDanhSach();
+
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
           window.speechSynthesis.getVoices();
-        }
-      };
+        };
+        window.speechSynthesis.getVoices();
+      }
+    };
 
-      async function khoiDongCamera() {
-        const video = document.getElementById("camera-feed");
-        const placeholder = document.getElementById("camera-placeholder");
-        const btnStart = document.getElementById("btn-start-camera");
+    async function khoiDongCamera() {
+      const video = document.getElementById("camera-feed");
+      const placeholder = document.getElementById("camera-placeholder");
+      const btnStart = document.getElementById("btn-start-camera");
+
+      try {
+        btnStart.innerHTML = `<i class="ph-fill ph-spinner-gap animate-spin text-xl"></i> Đang khởi tạo thiết bị...`;
+        btnStart.disabled = true;
 
         try {
-          btnStart.innerHTML = `<i class="ph-fill ph-spinner-gap animate-spin text-xl"></i> Đang khởi tạo thiết bị...`;
-          btnStart.disabled = true;
+          if ("BarcodeDetector" in window) {
+            nativeDetector = new BarcodeDetector({ formats: ["qr_code"] });
+          }
+        } catch (e) {
+          nativeDetector = null;
+        }
 
+        if (typeof ZXing !== "undefined" && !qrReader) {
+          const hints = new Map();
+          hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+            ZXing.BarcodeFormat.QR_CODE,
+          ]);
+          qrReader = new ZXing.BrowserMultiFormatReader(hints);
+        }
+
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment",
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+        });
+
+        video.srcObject = videoStream;
+        video.setAttribute("playsinline", true);
+        video.play();
+
+        placeholder.style.display = "none";
+        btnStart.style.display = "none";
+        document.getElementById("scan-guide").classList.remove("hidden");
+
+        capNhatTrangThai(
+          `<i class="ph-fill ph-rocket text-blue-500 text-lg"></i> Hệ thống đã sẵn sàng quét.`,
+          "success",
+        );
+
+        vongLapQuetQR();
+      } catch (err) {
+        capNhatTrangThai(
+          `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Vui lòng cấp quyền Camera.`,
+          "error",
+        );
+        btnStart.innerHTML = `<i class="ph-fill ph-arrow-counter-clockwise text-xl"></i> Thử Kích Hoạt Lại`;
+        btnStart.disabled = false;
+      }
+    }
+
+    async function vongLapQuetQR() {
+      if (!videoStream) return;
+      if (dangBanDocQR) {
+        setTimeout(vongLapQuetQR, 50);
+        return;
+      }
+
+      const video = document.getElementById("camera-feed");
+
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        dangBanDocQR = true;
+        let qrText = null;
+
+        // ⚡ Luồng 1: API Bản địa (Nhanh nhất)
+        if (nativeDetector) {
           try {
-            if ("BarcodeDetector" in window) {
-              nativeDetector = new BarcodeDetector({ formats: ["qr_code"] });
-            }
+            const barcodes = await nativeDetector.detect(video);
+            if (barcodes.length > 0)
+              qrText = barcodes[0].rawValue.toUpperCase();
           } catch (e) {
             nativeDetector = null;
           }
-
-          if (typeof ZXing !== "undefined" && !qrReader) {
-            const hints = new Map();
-            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-              ZXing.BarcodeFormat.QR_CODE,
-            ]);
-            qrReader = new ZXing.BrowserMultiFormatReader(hints);
-          }
-
-          videoStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: "environment",
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-            },
-          });
-
-          video.srcObject = videoStream;
-          video.setAttribute("playsinline", true);
-          video.play();
-
-          placeholder.style.display = "none";
-          btnStart.style.display = "none";
-          document.getElementById("scan-guide").classList.remove("hidden");
-
-          capNhatTrangThai(
-            `<i class="ph-fill ph-rocket text-blue-500 text-lg"></i> Hệ thống đã sẵn sàng quét.`,
-            "success",
-          );
-
-          vongLapQuetQR();
-        } catch (err) {
-          capNhatTrangThai(
-            `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Vui lòng cấp quyền Camera.`,
-            "error",
-          );
-          btnStart.innerHTML = `<i class="ph-fill ph-arrow-counter-clockwise text-xl"></i> Thử Kích Hoạt Lại`;
-          btnStart.disabled = false;
-        }
-      }
-
-      async function vongLapQuetQR() {
-        if (!videoStream) return;
-        if (dangBanDocQR) {
-          setTimeout(vongLapQuetQR, 50);
-          return;
         }
 
-        const video = document.getElementById("camera-feed");
+        // ⚡ Luồng 2: Thuật toán Tối ưu hóa - Đa Kính Lọc (Adaptive Multi-Pass)
+        if (!qrText && qrReader) {
+          try {
+            const canvas = document.getElementById("snapshot-canvas");
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
-        if (video.videoWidth > 0 && video.videoHeight > 0) {
-          dangBanDocQR = true;
-          let qrText = null;
+            const scale = Math.min(
+              800 / Math.max(video.videoWidth, video.videoHeight),
+              1,
+            );
+            canvas.width = video.videoWidth * scale;
+            canvas.height = video.videoHeight * scale;
 
-          // ⚡ Luồng 1: API Bản địa (Nhanh nhất)
-          if (nativeDetector) {
-            try {
-              const barcodes = await nativeDetector.detect(video);
-              if (barcodes.length > 0)
-                qrText = barcodes[0].rawValue.toUpperCase();
-            } catch (e) {
-              nativeDetector = null;
-            }
-          }
+            // 🌟 THUẬT TOÁN ĐA TẦNG: Thay đổi kính lọc liên tục mỗi 100ms
+            const pass = filterPass % 4;
+            filterPass++;
 
-          // ⚡ Luồng 2: Thuật toán Tối ưu hóa - Đa Kính Lọc (Adaptive Multi-Pass)
-          if (!qrText && qrReader) {
-            try {
-              const canvas = document.getElementById("snapshot-canvas");
-              const ctx = canvas.getContext("2d", { willReadFrequently: true });
-
-              const scale = Math.min(
-                800 / Math.max(video.videoWidth, video.videoHeight),
-                1,
-              );
-              canvas.width = video.videoWidth * scale;
-              canvas.height = video.videoHeight * scale;
-
-              // 🌟 THUẬT TOÁN ĐA TẦNG: Thay đổi kính lọc liên tục mỗi 100ms
-              const pass = filterPass % 4;
-              filterPass++;
-
-              if (pass === 0) {
-                // Tầng 0: Nguyên bản (Màu thật) -> Dành cho quét thẻ cứng/giấy in chuẩn.
-                ctx.filter = "none";
-              } else if (pass === 1) {
-                // Tầng 1: Đen trắng, Tương phản cao -> Dành cho màn hình điện thoại mờ, Night Shift.
-                ctx.filter = "grayscale(100%) contrast(150%)";
-              } else if (pass === 2) {
-                // Tầng 2: Giảm độ sáng, Tương phản cực đại -> Dành cho điện thoại đang bị Lóa / Sáng Max (Glare).
-                ctx.filter = "brightness(60%) contrast(200%) grayscale(100%)";
-              } else {
-                // Tầng 3: Làm nhòe nhẹ, Khử vân sọc Moiré -> Dành cho lúc webcam hiện nhiều đường sọc ngang/dọc.
-                ctx.filter = "blur(1px) contrast(300%) grayscale(100%)";
-              }
-
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-              ctx.filter = "none"; // Reset filter
-
-              const imageUrl = canvas.toDataURL("image/jpeg", 0.8);
-              const img = new Image();
-              img.src = imageUrl;
-
-              await new Promise((resolve) => {
-                img.onload = async () => {
-                  try {
-                    const result = await qrReader.decodeFromImageElement(img);
-                    qrText = result.text.toUpperCase();
-                  } catch (e) {
-                    // Không có mã
-                  }
-                  resolve();
-                };
-                img.onerror = resolve;
-              });
-            } catch (e) {
-              // Không có mã
-            }
-          }
-
-          // KIỂM TRA MÃ
-          if (qrText) {
-            let timThayThanhCong = false;
-            let daDiemDanhRoi = false;
-            let tenSinhVien = "";
-            let nguoiDaDiemDanh = "";
-            qrText = qrText.trim().toUpperCase();
-
-            // 🌟 TỐI ƯU KIẾN TRÚC MÃ: Bóc tách phần đằng sau chữ "SV"
-            let scannedMsv = qrText;
-            if (qrText.startsWith("SV")) {
-              scannedMsv = qrText.substring(2); // Cắt bỏ 2 ký tự đầu tiên (SV)
-            }
-
-            for (let i = 0; i < danhSachSinhVien.length; i++) {
-              let sv = danhSachSinhVien[i];
-
-              // 🌟 Dò tìm cực nhanh: Chỉ so sánh mã đã bóc tách với mã của sinh viên
-              if (scannedMsv === sv.maSV.toUpperCase()) {
-                tenSinhVien = sv.ten;
-                if (sv.daDen) {
-                  daDiemDanhRoi = true;
-                  nguoiDaDiemDanh = sv.daDiemDanhBoi || "ai đó";
-                } else {
-                  sv.daDen = true;
-                  sv.daDiemDanhBoi =
-                    localStorage.getItem("currentUser_diemdanh") || "Cán bộ";
-                  timThayThanhCong = true;
-                  if (typeof guiDongBoP2P === "function") guiDongBoP2P(); // P2P Sync
-                }
-                break;
-              }
-            }
-
-            if (timThayThanhCong) {
-              hieuUngThanhCong();
-              docTenSinhVien();
-              renderDanhSach();
-              capNhatTrangThai(
-                `<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i> Quét thành công: <b class="text-slate-800">${tenSinhVien}</b>`,
-                "success",
-              );
-              setTimeout(() => {
-                dangBanDocQR = false;
-                vongLapQuetQR();
-              }, 500);
-              return;
-            } else if (daDiemDanhRoi) {
-              capNhatTrangThai(
-                `<i class="ph-fill ph-info text-blue-500 text-lg"></i> Sinh viên <b class="text-slate-800">${tenSinhVien}</b> đã điểm danh bởi <b class="text-slate-800">${nguoiDaDiemDanh}</b> nhé!`,
-                "info",
-              );
-              setTimeout(() => {
-                dangBanDocQR = false;
-                vongLapQuetQR();
-              }, 1500);
-              return;
+            if (pass === 0) {
+              // Tầng 0: Nguyên bản (Màu thật) -> Dành cho quét thẻ cứng/giấy in chuẩn.
+              ctx.filter = "none";
+            } else if (pass === 1) {
+              // Tầng 1: Đen trắng, Tương phản cao -> Dành cho màn hình điện thoại mờ, Night Shift.
+              ctx.filter = "grayscale(100%) contrast(150%)";
+            } else if (pass === 2) {
+              // Tầng 2: Giảm độ sáng, Tương phản cực đại -> Dành cho điện thoại đang bị Lóa / Sáng Max (Glare).
+              ctx.filter = "brightness(60%) contrast(200%) grayscale(100%)";
             } else {
-              capNhatTrangThai(
-                `<i class="ph-fill ph-warning-circle text-amber-500 text-lg"></i> Mã không hợp lệ: <b class="text-amber-600">${qrText}</b>`,
-                "warning",
-              );
-              setTimeout(() => {
-                dangBanDocQR = false;
-                vongLapQuetQR();
-              }, 1500);
-              return;
+              // Tầng 3: Làm nhòe nhẹ, Khử vân sọc Moiré -> Dành cho lúc webcam hiện nhiều đường sọc ngang/dọc.
+              ctx.filter = "blur(1px) contrast(300%) grayscale(100%)";
             }
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.filter = "none"; // Reset filter
+
+            const imageUrl = canvas.toDataURL("image/jpeg", 0.8);
+            const img = new Image();
+            img.src = imageUrl;
+
+            await new Promise((resolve) => {
+              img.onload = async () => {
+                try {
+                  const result = await qrReader.decodeFromImageElement(img);
+                  qrText = result.text.toUpperCase();
+                } catch (e) {
+                  // Không có mã
+                }
+                resolve();
+              };
+              img.onerror = resolve;
+            });
+          } catch (e) {
+            // Không có mã
           }
         }
 
-        dangBanDocQR = false;
-        setTimeout(vongLapQuetQR, 100);
-      }
+        // KIỂM TRA MÃ
+        if (qrText) {
+          let timThayThanhCong = false;
+          let daDiemDanhRoi = false;
+          let tenSinhVien = "";
+          let nguoiDaDiemDanh = "";
+          qrText = qrText.trim().toUpperCase();
 
-      function docTenSinhVien() {
-        if ("speechSynthesis" in window) {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance("Ô kê");
-          utterance.lang = "vi-VN";
-          utterance.rate = 1.4;
-          utterance.pitch = 1.3;
-          window.speechSynthesis.speak(utterance);
+          // 🌟 TỐI ƯU KIẾN TRÚC MÃ: Bóc tách phần đằng sau chữ "SV"
+          let scannedMsv = qrText;
+          if (qrText.startsWith("SV")) {
+            scannedMsv = qrText.substring(2); // Cắt bỏ 2 ký tự đầu tiên (SV)
+          }
+
+          for (let i = 0; i < danhSachSinhVien.length; i++) {
+            let sv = danhSachSinhVien[i];
+
+            // 🌟 Dò tìm cực nhanh: Chỉ so sánh mã đã bóc tách với mã của sinh viên
+            if (scannedMsv === sv.maSV.toUpperCase()) {
+              tenSinhVien = sv.ten;
+              if (sv.daDen) {
+                daDiemDanhRoi = true;
+                nguoiDaDiemDanh = sv.daDiemDanhBoi || "ai đó";
+              } else {
+                sv.daDen = true;
+                sv.daDiemDanhBoi =
+                  localStorage.getItem("currentUser_diemdanh") || "Cán bộ";
+                timThayThanhCong = true;
+                if (typeof guiDongBoP2P === "function") guiDongBoP2P(); // P2P Sync
+              }
+              break;
+            }
+          }
+
+          if (timThayThanhCong) {
+            hieuUngThanhCong();
+            docTenSinhVien();
+            renderDanhSach();
+            capNhatTrangThai(
+              `<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i> Quét thành công: <b class="text-slate-800">${tenSinhVien}</b>`,
+              "success",
+            );
+            setTimeout(() => {
+              dangBanDocQR = false;
+              vongLapQuetQR();
+            }, 500);
+            return;
+          } else if (daDiemDanhRoi) {
+            capNhatTrangThai(
+              `<i class="ph-fill ph-info text-blue-500 text-lg"></i> Sinh viên <b class="text-slate-800">${tenSinhVien}</b> đã điểm danh bởi <b class="text-slate-800">${nguoiDaDiemDanh}</b> nhé!`,
+              "info",
+            );
+            setTimeout(() => {
+              dangBanDocQR = false;
+              vongLapQuetQR();
+            }, 1500);
+            return;
+          } else {
+            capNhatTrangThai(
+              `<i class="ph-fill ph-warning-circle text-amber-500 text-lg"></i> Mã không hợp lệ: <b class="text-amber-600">${qrText}</b>`,
+              "warning",
+            );
+            setTimeout(() => {
+              dangBanDocQR = false;
+              vongLapQuetQR();
+            }, 1500);
+            return;
+          }
         }
       }
 
-      function hieuUngThanhCong() {
-        const focusBox = document.getElementById("focus-box");
-        focusBox.classList.add("scan-success");
-        setTimeout(() => focusBox.classList.remove("scan-success"), 500);
+      dangBanDocQR = false;
+      setTimeout(vongLapQuetQR, 100);
+    }
+
+    function docTenSinhVien() {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance("Ô kê");
+        utterance.lang = "vi-VN";
+        utterance.rate = 1.4;
+        utterance.pitch = 1.3;
+        window.speechSynthesis.speak(utterance);
       }
+    }
 
-      function renderDanhSach() {
-        const tbody = document.getElementById("student-table-body");
-        const countAttended = document.getElementById("count-attended");
-        const countTotal = document.getElementById("count-total");
+    function hieuUngThanhCong() {
+      const focusBox = document.getElementById("focus-box");
+      focusBox.classList.add("scan-success");
+      setTimeout(() => focusBox.classList.remove("scan-success"), 500);
+    }
 
-        tbody.innerHTML = "";
-        let soNguoiDaDen = 0;
+    function renderDanhSach() {
+      const tbody = document.getElementById("student-table-body");
+      const countAttended = document.getElementById("count-attended");
+      const countTotal = document.getElementById("count-total");
 
-        danhSachSinhVien.forEach((sv, index) => {
-          if (sv.daDen) soNguoiDaDen++;
+      tbody.innerHTML = "";
+      let soNguoiDaDen = 0;
 
-          const rowClass = sv.daDen
-            ? "bg-blue-50/30"
-            : "hover:bg-slate-50 transition-colors bg-white";
-          const statusHtml = sv.daDen
-            ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-blue-100 text-blue-700"><i class="ph-fill ph-check-circle text-xs"></i> Có Mặt</span>`
-            : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-500"><i class="ph-fill ph-minus-circle text-xs"></i> Vắng</span>`;
+      danhSachSinhVien.forEach((sv, index) => {
+        if (sv.daDen) soNguoiDaDen++;
 
-          tbody.innerHTML += `
+        const rowClass = sv.daDen
+          ? "bg-blue-50/30"
+          : "hover:bg-slate-50 transition-colors bg-white";
+        const statusHtml = sv.daDen
+          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-blue-100 text-blue-700"><i class="ph-fill ph-check-circle text-xs"></i> Có Mặt</span>`
+          : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-500"><i class="ph-fill ph-minus-circle text-xs"></i> Vắng</span>`;
+
+        tbody.innerHTML += `
                     <tr class="${rowClass} cursor-pointer border-b border-slate-100 last:border-0 group" onclick="diemDanhThuCong(${index})">
                         <td class="p-3 md:p-4 font-mono text-slate-500 text-[11px] md:text-xs group-hover:text-blue-600 transition-colors align-middle">${sv.maSV}</td>
                         <td class="p-3 md:p-4 font-semibold text-slate-700 text-[11px] md:text-sm align-middle">${sv.ten}</td>
                         <td class="p-3 md:p-4 text-right align-middle whitespace-nowrap">${statusHtml}</td>
                     </tr>
                 `;
-        });
+      });
 
-        countAttended.innerText = soNguoiDaDen;
-        countTotal.innerText = danhSachSinhVien.length;
+      countAttended.innerText = soNguoiDaDen;
+      countTotal.innerText = danhSachSinhVien.length;
+    }
+
+    function diemDanhThuCong(index) {
+      let sv = danhSachSinhVien[index];
+      sv.daDen = !sv.daDen;
+      if (sv.daDen) {
+        sv.daDiemDanhBoi =
+          localStorage.getItem("currentUser_diemdanh") || "Cán bộ";
+      } else {
+        sv.daDiemDanhBoi = "";
       }
-
-      function diemDanhThuCong(index) {
-        let sv = danhSachSinhVien[index];
-        sv.daDen = !sv.daDen;
-        if (sv.daDen) {
-          sv.daDiemDanhBoi =
-            localStorage.getItem("currentUser_diemdanh") || "Cán bộ";
-        } else {
-          sv.daDiemDanhBoi = "";
-        }
-        renderDanhSach();
-        if (typeof guiDongBoP2P === "function") guiDongBoP2P(); // P2P Sync
-        if (sv.daDen)
-          capNhatTrangThai(
-            `<i class="ph-fill ph-pencil-simple text-blue-500 text-lg"></i> Cập nhật tay: <b class="text-slate-800">${sv.ten}</b>`,
-            "info",
-          );
-        else
-          capNhatTrangThai(
-            `<i class="ph-fill ph-eraser text-amber-500 text-lg"></i> Hủy dữ liệu: <b class="text-slate-800">${sv.ten}</b>`,
-            "warning",
-          );
-      }
-
-      function capNhatTrangThai(message, type = "info") {
-        const statusBox = document.getElementById("system-status");
-        statusBox.innerHTML = message;
-
-        statusBox.className =
-          "mt-4 md:mt-5 p-3 md:p-3.5 px-4 md:px-5 status-pill flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium transition-all duration-300 ";
-
-        if (type === "success")
-          statusBox.className +=
-            "text-emerald-700 border-emerald-200 bg-emerald-50";
-        else if (type === "error")
-          statusBox.className += "text-rose-600 border-rose-200 bg-rose-50";
-        else if (type === "warning")
-          statusBox.className += "text-amber-600 border-amber-200 bg-amber-50";
-        else statusBox.className += "text-slate-600 border-slate-200 bg-white";
-      }
-
-      function luuDiemDanh() {
-        const soNguoiDaDen = danhSachSinhVien.filter((sv) => sv.daDen).length;
-        if (soNguoiDaDen === 0) {
-          capNhatTrangThai(
-            `<i class="ph-fill ph-warning-circle text-amber-500 text-lg"></i> Chưa có dữ liệu để lưu!`,
-            "warning",
-          );
-          return;
-        }
-
-        const now = new Date();
-        const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-        const dateStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
-
-        const absent = danhSachSinhVien.length - soNguoiDaDen;
-
-        // Lấy danh sách bạn vắng để lưu vào lịch sử
-        let vangList = danhSachSinhVien.filter((sv) => !sv.daDen);
-        let coPhepNames = ["Phạm Khánh Hưng"]; // Hardcode tên các bạn có phép như list báo cáo
-
-        let absentUnexcused = [];
-        let absentExcused = [];
-
-        vangList.forEach((sv) => {
-          if (coPhepNames.includes(sv.ten)) {
-            absentExcused.push(sv);
-          } else {
-            absentUnexcused.push(sv);
-          }
-        });
-
-        lichSuDiemDanh.unshift({
-          id: Date.now(),
-          timeStr: timeStr,
-          dateStr: dateStr,
-          attended: soNguoiDaDen,
-          absent: absent,
-          absentUnexcused: absentUnexcused,
-          absentExcused: absentExcused,
-        });
+      renderDanhSach();
+      if (typeof guiDongBoP2P === "function") guiDongBoP2P(); // P2P Sync
+      if (sv.daDen)
         capNhatTrangThai(
-          `<i class="ph-fill ph-floppy-disk text-blue-500 text-lg"></i> Đã lưu phiên lúc ${timeStr}!`,
-          "success",
+          `<i class="ph-fill ph-pencil-simple text-blue-500 text-lg"></i> Cập nhật tay: <b class="text-slate-800">${sv.ten}</b>`,
+          "info",
         );
+      else
+        capNhatTrangThai(
+          `<i class="ph-fill ph-eraser text-amber-500 text-lg"></i> Hủy dữ liệu: <b class="text-slate-800">${sv.ten}</b>`,
+          "warning",
+        );
+    }
+
+    function capNhatTrangThai(message, type = "info") {
+      const statusBox = document.getElementById("system-status");
+      statusBox.innerHTML = message;
+
+      statusBox.className =
+        "mt-4 md:mt-5 p-3 md:p-3.5 px-4 md:px-5 status-pill flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium transition-all duration-300 ";
+
+      if (type === "success")
+        statusBox.className +=
+          "text-emerald-700 border-emerald-200 bg-emerald-50";
+      else if (type === "error")
+        statusBox.className += "text-rose-600 border-rose-200 bg-rose-50";
+      else if (type === "warning")
+        statusBox.className += "text-amber-600 border-amber-200 bg-amber-50";
+      else statusBox.className += "text-slate-600 border-slate-200 bg-white";
+    }
+
+    function luuDiemDanh() {
+      const soNguoiDaDen = danhSachSinhVien.filter((sv) => sv.daDen).length;
+      if (soNguoiDaDen === 0) {
+        capNhatTrangThai(
+          `<i class="ph-fill ph-warning-circle text-amber-500 text-lg"></i> Chưa có dữ liệu để lưu!`,
+          "warning",
+        );
+        return;
       }
 
-      let noiDungBaoCaoHienTai = "";
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      const dateStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
 
-      function moModalBaoCao() {
-        const now = new Date();
-        const dateStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+      const absent = danhSachSinhVien.length - soNguoiDaDen;
 
-        let vangList = danhSachSinhVien.filter((sv) => !sv.daDen);
-        let coPhepList = ["Phạm Khánh Hưng"]; // Lấy từ Google Docs
+      // Lấy danh sách bạn vắng để lưu vào lịch sử
+      let vangList = danhSachSinhVien.filter((sv) => !sv.daDen);
+      let coPhepNames = ["Phạm Khánh Hưng"]; // Hardcode tên các bạn có phép như list báo cáo
 
-        let msg = `- Thầy/Cô ơi, Hôm nay lớp CT2901 ${dateStr} vắng những bạn sau ạ:\n`;
-        if (vangList.length === 0) {
-          msg += `  (Không có ai vắng mặt)\n`;
+      let absentUnexcused = [];
+      let absentExcused = [];
+
+      vangList.forEach((sv) => {
+        if (coPhepNames.includes(sv.ten)) {
+          absentExcused.push(sv);
         } else {
-          vangList.forEach((sv, idx) => {
-            msg += `  ${idx + 1}. ${sv.ten} - ${sv.maSV}\n`;
-          });
+          absentUnexcused.push(sv);
         }
+      });
 
-        msg += `\n- Những bạn sau có phép ạ:\n`;
-        if (coPhepList.length === 0) {
-          msg += `  (Không có ai)\n`;
-        } else {
-          coPhepList.forEach((name, idx) => {
-            msg += `  ${idx + 1}. ${name}\n`;
-          });
-        }
+      lichSuDiemDanh.unshift({
+        id: Date.now(),
+        timeStr: timeStr,
+        dateStr: dateStr,
+        attended: soNguoiDaDen,
+        absent: absent,
+        absentUnexcused: absentUnexcused,
+        absentExcused: absentExcused,
+      });
+      capNhatTrangThai(
+        `<i class="ph-fill ph-floppy-disk text-blue-500 text-lg"></i> Đã lưu phiên lúc ${timeStr}!`,
+        "success",
+      );
+    }
 
-        noiDungBaoCaoHienTai = msg;
-        document.getElementById("report-preview-content").innerText = msg;
+    let noiDungBaoCaoHienTai = "";
 
-        const modal = document.getElementById("report-modal");
-        const modalContent = document.getElementById("report-modal-content");
-        modal.classList.remove("opacity-0", "pointer-events-none");
-        setTimeout(() => {
-          modalContent.classList.remove("scale-95");
-          modalContent.classList.add("scale-100");
-        }, 10);
+    function moModalBaoCao() {
+      const now = new Date();
+      const dateStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+
+      let vangList = danhSachSinhVien.filter((sv) => !sv.daDen);
+      let coPhepList = ["Phạm Khánh Hưng"]; // Lấy từ Google Docs
+
+      let msg = `- Thầy/Cô ơi, Hôm nay lớp CT2901 ${dateStr} vắng những bạn sau ạ:\n`;
+      if (vangList.length === 0) {
+        msg += `  (Không có ai vắng mặt)\n`;
+      } else {
+        vangList.forEach((sv, idx) => {
+          msg += `  ${idx + 1}. ${sv.ten} - ${sv.maSV}\n`;
+        });
       }
 
-      function dongModalBaoCao() {
-        const modal = document.getElementById("report-modal");
-        const modalContent = document.getElementById("report-modal-content");
-        modalContent.classList.remove("scale-100");
-        modalContent.classList.add("scale-95");
-        setTimeout(() => {
-          modal.classList.add("opacity-0", "pointer-events-none");
-        }, 300);
+      msg += `\n- Những bạn sau có phép ạ:\n`;
+      if (coPhepList.length === 0) {
+        msg += `  (Không có ai)\n`;
+      } else {
+        coPhepList.forEach((name, idx) => {
+          msg += `  ${idx + 1}. ${name}\n`;
+        });
       }
 
-      function tienHanhCopyBaoCao() {
-        const msg = noiDungBaoCaoHienTai;
-        if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard
-            .writeText(msg)
-            .then(() => {
-              capNhatTrangThai(
-                `<i class="ph-fill ph-copy text-blue-500 text-lg"></i> Đã copy nội dung báo cáo!`,
-                "success",
-              );
-              alert("Đã copy tin nhắn báo cáo vào clipboard!");
-              dongModalBaoCao();
-            })
-            .catch((err) => {
-              capNhatTrangThai(
-                `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Lỗi copy tự động!`,
-                "error",
-              );
-              console.error("Lỗi khi copy: ", err);
-            });
-        } else {
-          let textArea = document.createElement("textarea");
-          textArea.value = msg;
-          textArea.style.position = "fixed";
-          textArea.style.left = "-999999px";
-          textArea.style.top = "-999999px";
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          try {
-            document.execCommand("copy");
+      noiDungBaoCaoHienTai = msg;
+      document.getElementById("report-preview-content").innerText = msg;
+
+      const modal = document.getElementById("report-modal");
+      const modalContent = document.getElementById("report-modal-content");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        modalContent.classList.remove("scale-95");
+        modalContent.classList.add("scale-100");
+      }, 10);
+    }
+
+    function dongModalBaoCao() {
+      const modal = document.getElementById("report-modal");
+      const modalContent = document.getElementById("report-modal-content");
+      modalContent.classList.remove("scale-100");
+      modalContent.classList.add("scale-95");
+      setTimeout(() => {
+        modal.classList.add("opacity-0", "pointer-events-none");
+      }, 300);
+    }
+
+    function tienHanhCopyBaoCao() {
+      const msg = noiDungBaoCaoHienTai;
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard
+          .writeText(msg)
+          .then(() => {
             capNhatTrangThai(
               `<i class="ph-fill ph-copy text-blue-500 text-lg"></i> Đã copy nội dung báo cáo!`,
               "success",
             );
             alert("Đã copy tin nhắn báo cáo vào clipboard!");
             dongModalBaoCao();
-          } catch (err) {
+          })
+          .catch((err) => {
             capNhatTrangThai(
-              `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Trình duyệt không hỗ trợ copy.`,
+              `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Lỗi copy tự động!`,
               "error",
             );
-          }
-          textArea.remove();
+            console.error("Lỗi khi copy: ", err);
+          });
+      } else {
+        let textArea = document.createElement("textarea");
+        textArea.value = msg;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          capNhatTrangThai(
+            `<i class="ph-fill ph-copy text-blue-500 text-lg"></i> Đã copy nội dung báo cáo!`,
+            "success",
+          );
+          alert("Đã copy tin nhắn báo cáo vào clipboard!");
+          dongModalBaoCao();
+        } catch (err) {
+          capNhatTrangThai(
+            `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Trình duyệt không hỗ trợ copy.`,
+            "error",
+          );
         }
+        textArea.remove();
       }
+    }
 
-      function moModalThongKe() {
-        quayLaiLichSu(); // Ensure we are on the list view initially
-        const tbody = document.getElementById("history-table-body");
-        tbody.innerHTML = "";
+    function moModalThongKe() {
+      quayLaiLichSu(); // Ensure we are on the list view initially
+      const tbody = document.getElementById("history-table-body");
+      tbody.innerHTML = "";
 
-        if (lichSuDiemDanh.length === 0) {
-          tbody.innerHTML = `
+      if (lichSuDiemDanh.length === 0) {
+        tbody.innerHTML = `
                     <tr>
                         <td colspan="3" class="p-6 text-center text-slate-400 text-sm font-medium">Chưa có dữ liệu lưu trữ nào.</td>
                     </tr>
                 `;
-        } else {
-          lichSuDiemDanh.forEach((log) => {
-            tbody.innerHTML += `
+      } else {
+        lichSuDiemDanh.forEach((log) => {
+          tbody.innerHTML += `
                         <tr class="hover:bg-slate-100 transition-colors cursor-pointer group" onclick="xemChiTietLichSu(${log.id})">
                             <td class="p-3 font-medium text-slate-700 group-hover:text-purple-600 transition-colors">
                                 <span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded text-xs font-bold mr-2">${log.timeStr}</span>
@@ -1322,522 +1154,515 @@
                             <td class="p-3 text-center font-bold text-rose-500 group-hover:underline underline-offset-2">${log.absent}</td>
                         </tr>
                     `;
-          });
+        });
+      }
+
+      const modal = document.getElementById("history-modal");
+      const modalContent = document.getElementById("history-modal-content");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        modalContent.classList.remove("scale-95");
+        modalContent.classList.add("scale-100");
+      }, 10);
+    }
+
+    function xemChiTietLichSu(id) {
+      const log = lichSuDiemDanh.find((l) => l.id === id);
+      if (!log) return;
+
+      document.getElementById("history-list-view").classList.add("hidden");
+      document
+        .getElementById("history-detail-view")
+        .classList.remove("hidden");
+      document.getElementById("history-detail-view").classList.add("flex");
+
+      document.getElementById("detail-time-title").innerText =
+        `Chi tiết phiên lúc ${log.timeStr} - ${log.dateStr}`;
+
+      // Render danh sách không phép
+      const unexcusedList = document.getElementById("detail-unexcused-list");
+      document.getElementById("detail-unexcused-count").innerText =
+        log.absentUnexcused.length;
+      unexcusedList.innerHTML =
+        log.absentUnexcused.length > 0
+          ? log.absentUnexcused
+            .map(
+              (sv) =>
+                `<li>${sv.ten} <span class="text-slate-400 text-xs">- ${sv.maSV}</span></li>`,
+            )
+            .join("")
+          : '<li class="list-none text-slate-400 italic text-xs ml-0">Không có ai</li>';
+
+      // Render danh sách có phép
+      const excusedList = document.getElementById("detail-excused-list");
+      document.getElementById("detail-excused-count").innerText =
+        log.absentExcused.length;
+      excusedList.innerHTML =
+        log.absentExcused.length > 0
+          ? log.absentExcused
+            .map(
+              (sv) =>
+                `<li>${sv.ten} <span class="text-slate-400 text-xs">- ${sv.maSV}</span></li>`,
+            )
+            .join("")
+          : '<li class="list-none text-slate-400 italic text-xs ml-0">Không có ai</li>';
+    }
+
+    function quayLaiLichSu() {
+      document.getElementById("history-detail-view").classList.add("hidden");
+      document.getElementById("history-detail-view").classList.remove("flex");
+      document.getElementById("history-list-view").classList.remove("hidden");
+    }
+
+    function dongModalThongKe() {
+      const modal = document.getElementById("history-modal");
+      const modalContent = document.getElementById("history-modal-content");
+      modalContent.classList.remove("scale-100");
+      modalContent.classList.add("scale-95");
+      setTimeout(() => {
+        modal.classList.add("opacity-0", "pointer-events-none");
+      }, 300);
+    }
+    // ==========================
+    // 🌟 1. LOGIC XÁC THỰC CÁN BỘ LỚP
+    // ==========================
+    function hienThiCanBo() {
+      let savedName = localStorage.getItem("currentUser_diemdanh");
+      if (savedName) {
+        let foundSv = danhSachSinhVien.find((sv) => sv.ten === savedName);
+        if (foundSv) {
+          foundSv.daDen = true;
+          foundSv.daDiemDanhBoi = savedName;
+          capNhatTrangThai(
+            `<i class="ph-fill ph-sparkle text-blue-500 text-lg"></i> Chào mừng quay lại <b class="text-slate-800">${savedName}</b>! Mặc định đã điểm danh.`,
+            "info",
+          );
+          if (typeof guiDongBoP2P === "function") guiDongBoP2P();
+          return;
         }
-
-        const modal = document.getElementById("history-modal");
-        const modalContent = document.getElementById("history-modal-content");
-        modal.classList.remove("opacity-0", "pointer-events-none");
-        setTimeout(() => {
-          modalContent.classList.remove("scale-95");
-          modalContent.classList.add("scale-100");
-        }, 10);
       }
 
-      function xemChiTietLichSu(id) {
-        const log = lichSuDiemDanh.find((l) => l.id === id);
-        if (!log) return;
+      // Hiện Auth modal
+      const modal = document.getElementById("auth-modal");
+      const modalContent = document.getElementById("auth-modal-content");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        modalContent.classList.remove("scale-95");
+        modalContent.classList.add("scale-100");
+      }, 10);
+      capNhatTrangThai(
+        `<i class="ph-fill ph-shield-check text-blue-500 text-lg"></i> Vui lòng xác thực danh tính Cán Bộ Lớp.`,
+        "info",
+      );
+    }
 
-        document.getElementById("history-list-view").classList.add("hidden");
-        document
-          .getElementById("history-detail-view")
-          .classList.remove("hidden");
-        document.getElementById("history-detail-view").classList.add("flex");
+    function xacNhanCanBo(silent = false) {
+      const inputName = document
+        .getElementById("auth-name-input")
+        .value.trim();
+      const err = document.getElementById("auth-error-msg");
 
-        document.getElementById("detail-time-title").innerText =
-          `Chi tiết phiên lúc ${log.timeStr} - ${log.dateStr}`;
-
-        // Render danh sách không phép
-        const unexcusedList = document.getElementById("detail-unexcused-list");
-        document.getElementById("detail-unexcused-count").innerText =
-          log.absentUnexcused.length;
-        unexcusedList.innerHTML =
-          log.absentUnexcused.length > 0
-            ? log.absentUnexcused
-                .map(
-                  (sv) =>
-                    `<li>${sv.ten} <span class="text-slate-400 text-xs">- ${sv.maSV}</span></li>`,
-                )
-                .join("")
-            : '<li class="list-none text-slate-400 italic text-xs ml-0">Không có ai</li>';
-
-        // Render danh sách có phép
-        const excusedList = document.getElementById("detail-excused-list");
-        document.getElementById("detail-excused-count").innerText =
-          log.absentExcused.length;
-        excusedList.innerHTML =
-          log.absentExcused.length > 0
-            ? log.absentExcused
-                .map(
-                  (sv) =>
-                    `<li>${sv.ten} <span class="text-slate-400 text-xs">- ${sv.maSV}</span></li>`,
-                )
-                .join("")
-            : '<li class="list-none text-slate-400 italic text-xs ml-0">Không có ai</li>';
+      if (!inputName) {
+        err.classList.remove("hidden");
+        return;
       }
 
-      function quayLaiLichSu() {
-        document.getElementById("history-detail-view").classList.add("hidden");
-        document.getElementById("history-detail-view").classList.remove("flex");
-        document.getElementById("history-list-view").classList.remove("hidden");
-      }
+      let foundSv = danhSachSinhVien.find(
+        (sv) => sv.ten.toLowerCase() === inputName.toLowerCase(),
+      );
+      if (foundSv) {
+        err.classList.add("hidden");
+        localStorage.setItem("currentUser_diemdanh", foundSv.ten);
+        foundSv.daDen = true;
+        foundSv.daDiemDanhBoi = foundSv.ten;
 
-      function dongModalThongKe() {
-        const modal = document.getElementById("history-modal");
-        const modalContent = document.getElementById("history-modal-content");
+        // Đóng Modal
+        const modal = document.getElementById("auth-modal");
+        const modalContent = document.getElementById("auth-modal-content");
         modalContent.classList.remove("scale-100");
         modalContent.classList.add("scale-95");
         setTimeout(() => {
           modal.classList.add("opacity-0", "pointer-events-none");
         }, 300);
-      }
-      // ==========================
-      // 🌟 1. LOGIC XÁC THỰC CÁN BỘ LỚP
-      // ==========================
-      function hienThiCanBo() {
-        let savedName = localStorage.getItem("currentUser_diemdanh");
-        if (savedName) {
-          let foundSv = danhSachSinhVien.find((sv) => sv.ten === savedName);
-          if (foundSv) {
-            foundSv.daDen = true;
-            foundSv.daDiemDanhBoi = savedName;
-            capNhatTrangThai(
-              `<i class="ph-fill ph-sparkle text-blue-500 text-lg"></i> Chào mừng quay lại <b class="text-slate-800">${savedName}</b>! Mặc định đã điểm danh.`,
-              "info",
-            );
-            if (typeof guiDongBoP2P === "function") guiDongBoP2P();
-            return;
-          }
-        }
 
-        // Hiện Auth modal
-        const modal = document.getElementById("auth-modal");
-        const modalContent = document.getElementById("auth-modal-content");
-        modal.classList.remove("opacity-0", "pointer-events-none");
-        setTimeout(() => {
-          modalContent.classList.remove("scale-95");
-          modalContent.classList.add("scale-100");
-        }, 10);
+        renderDanhSach();
         capNhatTrangThai(
-          `<i class="ph-fill ph-shield-check text-blue-500 text-lg"></i> Vui lòng xác thực danh tính Cán Bộ Lớp.`,
-          "info",
+          `<i class="ph-fill ph-sparkle text-emerald-500 text-lg"></i> Xác nhận thành công Cán bộ: <b class="text-emerald-700">${foundSv.ten}</b>`,
+          "success",
         );
+        docTenCustom(`Xin chào ${foundSv.ten}`);
+
+        if (typeof guiDongBoP2P === "function") guiDongBoP2P();
+      } else {
+        err.classList.remove("hidden");
       }
+    }
 
-      function xacNhanCanBo(silent = false) {
-        const inputName = document
-          .getElementById("auth-name-input")
-          .value.trim();
-        const err = document.getElementById("auth-error-msg");
+    function docTenCustom(text) {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        let utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "vi-VN";
+        utterance.rate = 1.3;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
 
-        if (!inputName) {
-          err.classList.remove("hidden");
+    // ==========================
+    // 🌟 2. LOGIC P2P CHIA SẺ DỮ LIỆU
+    // ==========================
+    function randomP2PId() {
+      return Math.floor(1000 + Math.random() * 9000).toString(); // Mã 4 số đẹp
+    }
+
+    function capNhatUIP2P(status, text, count = 0) {
+      const badge = document.getElementById("p2p-status-badge");
+      const dot = document.getElementById("p2p-status-dot");
+      const btnText = document.getElementById("p2p-status-text");
+      const peerListDiv = document.getElementById("p2p-peers-list");
+      const peerCount = document.getElementById("p2p-peers-count");
+
+      btnText.innerText = count > 0 ? `P2P (${count})` : "Đồng Bộ";
+
+      if (status === "connected") {
+        badge.className =
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-700";
+        if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" id="p2p-status-dot"></span> ${text}`;
+        peerListDiv.classList.remove("hidden");
+        peerListDiv.classList.add("flex");
+        peerCount.innerText = count;
+        document
+          .getElementById("btn-p2p")
+          .classList.add(
+            "bg-emerald-50",
+            "border-emerald-500",
+            "text-emerald-700",
+          );
+      } else if (status === "connecting") {
+        badge.className =
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700";
+        if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" id="p2p-status-dot"></span> ${text}`;
+        peerListDiv.classList.add("hidden");
+        peerListDiv.classList.remove("flex");
+      } else {
+        badge.className =
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-200 text-slate-600";
+        if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400" id="p2p-status-dot"></span> ${text}`;
+        peerListDiv.classList.add("hidden");
+        peerListDiv.classList.remove("flex");
+        document
+          .getElementById("btn-p2p")
+          .classList.remove(
+            "bg-emerald-50",
+            "border-emerald-500",
+            "text-emerald-700",
+          );
+      }
+    }
+
+    function renderPeerListUI() {
+      const ul = document.getElementById("p2p-peers-ul");
+      ul.innerHTML = "";
+      let savedName = localStorage.getItem("currentUser_diemdanh") || myP2pId;
+
+      if (isHost) {
+        ul.innerHTML += `<li class="flex items-center gap-2"><i class="ph-fill ph-crown text-amber-500"></i> ${savedName} (Bạn - Trưởng Nhóm)</li>`;
+        p2pClients.forEach((conn, index) => {
+          let clientName = conn.metadata?.name || `Cán bộ #${index + 1}`;
+          ul.innerHTML += `<li class="flex items-center gap-2 font-medium"><i class="ph-fill ph-laptop text-emerald-500"></i> ${clientName} đang đồng bộ</li>`;
+        });
+      } else if (p2pConnection) {
+        ul.innerHTML = `<li class="flex items-center gap-2"><i class="ph-fill ph-laptop text-blue-500"></i> ${savedName} (Bạn)</li>`;
+        ul.innerHTML += `<li class="flex items-center gap-2"><i class="ph-fill ph-server text-emerald-500"></i> Đang nối với Trưởng Nhóm: <b class="text-slate-800">${p2pConnection.peer.replace("CT-", "")}</b></li>`;
+      }
+    }
+
+    function moModalP2P() {
+      const modal = document.getElementById("p2p-modal");
+      const modalContent = document.getElementById("p2p-modal-content");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        modalContent.classList.remove("scale-95");
+        modalContent.classList.add("scale-100");
+      }, 10);
+    }
+
+    function dongModalP2P() {
+      const modal = document.getElementById("p2p-modal");
+      const modalContent = document.getElementById("p2p-modal-content");
+      modalContent.classList.remove("scale-100");
+      modalContent.classList.add("scale-95");
+      setTimeout(() => {
+        modal.classList.add("opacity-0", "pointer-events-none");
+      }, 300);
+    }
+
+    function taoPhongP2P() {
+      if (peer) peer.destroy();
+      const hostId = "CT-" + randomP2PId();
+      myP2pId = hostId;
+      isHost = true;
+      p2pClients = [];
+
+      capNhatUIP2P("connecting", "Khởi tạo Máy Chủ...");
+
+      peer = new Peer(hostId, {
+        pingInterval: 5000,
+        config: {
+          iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+            { urls: "stun:stun.cloudflare.com:3478" },
+            { urls: "stun:openrelay.metered.ca:80" },
+            { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+            { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" }
+          ]
+        }
+      });
+      document.getElementById("p2p-my-id").innerText = hostId.replace(
+        "CT-",
+        "",
+      );
+
+      document
+        .getElementById("p2p-actions")
+        .classList.add("opacity-50", "pointer-events-none");
+
+      peer.on("open", (id) => {
+        capNhatUIP2P("connected", "Trưởng Nhóm đang chờ", p2pClients.length);
+        renderPeerListUI();
+        capNhatTrangThai(
+          `<i class="ph-fill ph-crown text-amber-500 text-lg"></i> Đã tạo phòng P2P! Code của bạn là: <b class="text-xl">${id.replace("CT-", "")}</b>`,
+          "success",
+        );
+        document
+          .getElementById("p2p-actions")
+          .classList.remove("opacity-50", "pointer-events-none");
+      });
+
+      peer.on("connection", (conn) => {
+        if (p2pClients.length >= 4) {
+          conn.send({
+            type: "ERROR",
+            msg: "Xin lỗi, phòng đã đủ 5 người hoạt động (1 Host + 4 Client)!",
+          });
+          setTimeout(() => conn.close(), 1000);
           return;
         }
 
-        let foundSv = danhSachSinhVien.find(
-          (sv) => sv.ten.toLowerCase() === inputName.toLowerCase(),
-        );
-        if (foundSv) {
-          err.classList.add("hidden");
-          localStorage.setItem("currentUser_diemdanh", foundSv.ten);
-          foundSv.daDen = true;
-          foundSv.daDiemDanhBoi = foundSv.ten;
+        conn.on("open", () => {
+          p2pClients.push(conn);
+          capNhatUIP2P("connected", "Đang đồng bộ", p2pClients.length);
+          renderPeerListUI();
 
-          // Đóng Modal
-          const modal = document.getElementById("auth-modal");
-          const modalContent = document.getElementById("auth-modal-content");
-          modalContent.classList.remove("scale-100");
-          modalContent.classList.add("scale-95");
-          setTimeout(() => {
-            modal.classList.add("opacity-0", "pointer-events-none");
-          }, 300);
+          let hostName =
+            localStorage.getItem("currentUser_diemdanh") || myP2pId;
+          conn.send({
+            type: "WELCOME",
+            hostName: hostName,
+            data: danhSachSinhVien,
+          });
 
-          renderDanhSach();
+          let clientName = conn.metadata?.name || "1 cán bộ";
           capNhatTrangThai(
-            `<i class="ph-fill ph-sparkle text-emerald-500 text-lg"></i> Xác nhận thành công Cán bộ: <b class="text-emerald-700">${foundSv.ten}</b>`,
+            `<i class="ph-fill ph-plugs-connected text-emerald-500 text-lg"></i> Đã kết nối thành công với <b class="text-slate-800">${clientName}</b>!`,
             "success",
           );
-          docTenCustom(`Xin chào ${foundSv.ten}`);
+          if (typeof docTenCustom === "function")
+            docTenCustom(`${clientName} đã kết nối`);
+        });
 
-          if (typeof guiDongBoP2P === "function") guiDongBoP2P();
-        } else {
-          err.classList.remove("hidden");
-        }
-      }
-
-      function docTenCustom(text) {
-        if ("speechSynthesis" in window) {
-          window.speechSynthesis.cancel();
-          let utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "vi-VN";
-          utterance.rate = 1.3;
-          window.speechSynthesis.speak(utterance);
-        }
-      }
-
-      // ==========================
-      // 🌟 2. LOGIC P2P CHIA SẺ DỮ LIỆU
-      // ==========================
-      function randomP2PId() {
-        return Math.floor(1000 + Math.random() * 9000).toString(); // Mã 4 số đẹp
-      }
-
-      function capNhatUIP2P(status, text, count = 0) {
-        const badge = document.getElementById("p2p-status-badge");
-        const dot = document.getElementById("p2p-status-dot");
-        const btnText = document.getElementById("p2p-status-text");
-        const peerListDiv = document.getElementById("p2p-peers-list");
-        const peerCount = document.getElementById("p2p-peers-count");
-
-        btnText.innerText = count > 0 ? `P2P (${count})` : "Đồng Bộ";
-
-        if (status === "connected") {
-          badge.className =
-            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-700";
-          if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
-          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" id="p2p-status-dot"></span> ${text}`;
-          peerListDiv.classList.remove("hidden");
-          peerListDiv.classList.add("flex");
-          peerCount.innerText = count;
-          document
-            .getElementById("btn-p2p")
-            .classList.add(
-              "bg-emerald-50",
-              "border-emerald-500",
-              "text-emerald-700",
-            );
-        } else if (status === "connecting") {
-          badge.className =
-            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700";
-          if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping";
-          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" id="p2p-status-dot"></span> ${text}`;
-          peerListDiv.classList.add("hidden");
-          peerListDiv.classList.remove("flex");
-        } else {
-          badge.className =
-            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-200 text-slate-600";
-          if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
-          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400" id="p2p-status-dot"></span> ${text}`;
-          peerListDiv.classList.add("hidden");
-          peerListDiv.classList.remove("flex");
-          document
-            .getElementById("btn-p2p")
-            .classList.remove(
-              "bg-emerald-50",
-              "border-emerald-500",
-              "text-emerald-700",
-            );
-        }
-      }
-
-      function renderPeerListUI() {
-        const ul = document.getElementById("p2p-peers-ul");
-        ul.innerHTML = "";
-        let savedName = localStorage.getItem("currentUser_diemdanh") || myP2pId;
-
-        if (isHost) {
-          ul.innerHTML += `<li class="flex items-center gap-2"><i class="ph-fill ph-crown text-amber-500"></i> ${savedName} (Bạn - Trưởng Nhóm)</li>`;
-          p2pClients.forEach((conn, index) => {
-            let clientName = conn.metadata?.name || `Cán bộ #${index + 1}`;
-            ul.innerHTML += `<li class="flex items-center gap-2 font-medium"><i class="ph-fill ph-laptop text-emerald-500"></i> ${clientName} đang đồng bộ</li>`;
-          });
-        } else if (p2pConnection) {
-          ul.innerHTML = `<li class="flex items-center gap-2"><i class="ph-fill ph-laptop text-blue-500"></i> ${savedName} (Bạn)</li>`;
-          ul.innerHTML += `<li class="flex items-center gap-2"><i class="ph-fill ph-server text-emerald-500"></i> Đang nối với Trưởng Nhóm: <b class="text-slate-800">${p2pConnection.peer.replace("CT-", "")}</b></li>`;
-        }
-      }
-
-      function moModalP2P() {
-        const modal = document.getElementById("p2p-modal");
-        const modalContent = document.getElementById("p2p-modal-content");
-        modal.classList.remove("opacity-0", "pointer-events-none");
-        setTimeout(() => {
-          modalContent.classList.remove("scale-95");
-          modalContent.classList.add("scale-100");
-        }, 10);
-      }
-
-      function dongModalP2P() {
-        const modal = document.getElementById("p2p-modal");
-        const modalContent = document.getElementById("p2p-modal-content");
-        modalContent.classList.remove("scale-100");
-        modalContent.classList.add("scale-95");
-        setTimeout(() => {
-          modal.classList.add("opacity-0", "pointer-events-none");
-        }, 300);
-      }
-
-      function taoPhongP2P() {
-        if (peer) peer.destroy();
-        const hostId = "CT-" + randomP2PId();
-        myP2pId = hostId;
-        isHost = true;
-        p2pClients = [];
-
-        capNhatUIP2P("connecting", "Khởi tạo Máy Chủ...");
-
-        peer = new Peer(hostId, {
-          host: "peerjs.com",
-          port: 443,
-          path: "/",
-          secure: true,
-          pingInterval: 5000,
-          config: {
-            iceServers: [
-              { urls: "stun:stun.l.google.com:19302" },
-              { urls: "stun:stun1.l.google.com:19302" },
-              { urls: "stun:stun.cloudflare.com:3478" },
-              { urls: "stun:openrelay.metered.ca:80" },
-              { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
-              { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" }
-            ]
+        conn.on("data", (payload) => {
+          if (payload.type === "SYNC") {
+            tienHanhGopDuLieu(payload.data);
+            guiDongBoP2P(conn.peer);
           }
         });
-        document.getElementById("p2p-my-id").innerText = hostId.replace(
-          "CT-",
-          "",
-        );
 
+        conn.on("close", () => {
+          p2pClients = p2pClients.filter((c) => c.peer !== conn.peer);
+          capNhatUIP2P("connected", "Đang đồng bộ", p2pClients.length);
+          renderPeerListUI();
+
+          let clientName = conn.metadata?.name || "Một cán bộ";
+          capNhatTrangThai(
+            `<i class="ph-fill ph-warning-circle text-amber-500 text-lg"></i> <b class="text-amber-700">${clientName}</b> đã ngắt kết nối P2P.`,
+            "warning",
+          );
+        });
+      });
+
+      peer.on("error", (err) => {
         document
           .getElementById("p2p-actions")
-          .classList.add("opacity-50", "pointer-events-none");
+          .classList.remove("opacity-50", "pointer-events-none");
+        capNhatUIP2P("disconnected", "Lỗi Kết Nối");
+        let errMsg = "Lỗi kết nối! Thử tạo phòng lại nha anh Hoàng.";
+        if (err.type === "unavailable-id") errMsg = "Mã phòng đã tồn tại! Thử tạo phòng mới nhé.";
+        else if (err.type === "network") errMsg = "Mất mạng hoặc server bận! Kiểm tra kết nối rồi thử lại.";
+        else if (err.type === "server-error") errMsg = "Server PeerJS đang bận! Vui lòng thử lại sau vài giây.";
+        capNhatTrangThai(
+          `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> ${errMsg}`,
+          "error"
+        );
+      });
+    }
 
-        peer.on("open", (id) => {
-          capNhatUIP2P("connected", "Trưởng Nhóm đang chờ", p2pClients.length);
-          renderPeerListUI();
+    function thamGiaP2P() {
+      let joinCode = document.getElementById("p2p-join-input").value.trim();
+      if (!joinCode) return;
+
+      if (!joinCode.toUpperCase().startsWith("CT-"))
+        joinCode = "CT-" + joinCode;
+
+      const hostId = joinCode.toUpperCase();
+
+      if (peer) peer.destroy();
+      myP2pId = "CLIENT-" + randomP2PId();
+      isHost = false;
+
+      capNhatUIP2P("connecting", "Truy tìm Trưởng Nhóm...");
+      document.getElementById("p2p-my-id").innerText = myP2pId.replace(
+        "CLIENT-",
+        "",
+      );
+      document
+        .getElementById("p2p-actions")
+        .classList.add("opacity-50", "pointer-events-none");
+
+      peer = new Peer(myP2pId, {
+        pingInterval: 5000,
+        config: {
+          iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+            { urls: "stun:stun.cloudflare.com:3478" },
+            { urls: "stun:openrelay.metered.ca:80" },
+            { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+            { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" }
+          ]
+        }
+      });
+
+      // ⏱️ Timeout 15s: Chống treo máy nếu rớt mạng hoặc Host chưa bật
+      let p2pTimeout = setTimeout(() => {
+        if (!p2pConnection || !p2pConnection.open) {
+          document.getElementById("p2p-actions").classList.remove("opacity-50", "pointer-events-none");
           capNhatTrangThai(
-            `<i class="ph-fill ph-crown text-amber-500 text-lg"></i> Đã tạo phòng P2P! Code của bạn là: <b class="text-xl">${id.replace("CT-", "")}</b>`,
-            "success",
-          );
-          document
-            .getElementById("p2p-actions")
-            .classList.remove("opacity-50", "pointer-events-none");
-        });
-
-        peer.on("connection", (conn) => {
-          if (p2pClients.length >= 4) {
-            conn.send({
-              type: "ERROR",
-              msg: "Xin lỗi, phòng đã đủ 5 người hoạt động (1 Host + 4 Client)!",
-            });
-            setTimeout(() => conn.close(), 1000);
-            return;
-          }
-
-          conn.on("open", () => {
-            p2pClients.push(conn);
-            capNhatUIP2P("connected", "Đang đồng bộ", p2pClients.length);
-            renderPeerListUI();
-
-            let hostName =
-              localStorage.getItem("currentUser_diemdanh") || myP2pId;
-            conn.send({
-              type: "WELCOME",
-              hostName: hostName,
-              data: danhSachSinhVien,
-            });
-
-            let clientName = conn.metadata?.name || "1 cán bộ";
-            capNhatTrangThai(
-              `<i class="ph-fill ph-plugs-connected text-emerald-500 text-lg"></i> Đã kết nối thành công với <b class="text-slate-800">${clientName}</b>!`,
-              "success",
-            );
-            if (typeof docTenCustom === "function")
-              docTenCustom(`${clientName} đã kết nối`);
-          });
-
-          conn.on("data", (payload) => {
-            if (payload.type === "SYNC") {
-              tienHanhGopDuLieu(payload.data);
-              guiDongBoP2P(conn.peer);
-            }
-          });
-
-          conn.on("close", () => {
-            p2pClients = p2pClients.filter((c) => c.peer !== conn.peer);
-            capNhatUIP2P("connected", "Đang đồng bộ", p2pClients.length);
-            renderPeerListUI();
-
-            let clientName = conn.metadata?.name || "Một cán bộ";
-            capNhatTrangThai(
-              `<i class="ph-fill ph-warning-circle text-amber-500 text-lg"></i> <b class="text-amber-700">${clientName}</b> đã ngắt kết nối P2P.`,
-              "warning",
-            );
-          });
-        });
-
-        peer.on("error", (err) => {
-          document
-            .getElementById("p2p-actions")
-            .classList.remove("opacity-50", "pointer-events-none");
-          capNhatUIP2P("disconnected", "Lỗi Kết Nối");
-          let errMsg = "Lỗi kết nối! Thử tạo phòng lại nha anh Hoàng.";
-          if (err.type === "unavailable-id") errMsg = "Mã phòng đã tồn tại! Thử tạo phòng mới nhé.";
-          else if (err.type === "network") errMsg = "Mất mạng hoặc server bận! Kiểm tra kết nối rồi thử lại.";
-          else if (err.type === "server-error") errMsg = "Server PeerJS đang bận! Vui lòng thử lại sau vài giây.";
-          capNhatTrangThai(
-            `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> ${errMsg}`,
+            `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Hết giờ! Máy Trưởng Nhóm chưa bật hoặc sai mã.`,
             "error"
           );
-        });
-      }
+          capNhatUIP2P("disconnected", "Lỗi Mạng/Mã");
+          if (peer) peer.destroy();
+        }
+      }, 15000);
 
-      function thamGiaP2P() {
-        let joinCode = document.getElementById("p2p-join-input").value.trim();
-        if (!joinCode) return;
+      peer.on("open", (id) => {
+        let myName = localStorage.getItem("currentUser_diemdanh") || myP2pId;
+        p2pConnection = peer.connect(hostId, { metadata: { name: myName } });
 
-        if (!joinCode.toUpperCase().startsWith("CT-"))
-          joinCode = "CT-" + joinCode;
-
-        const hostId = joinCode.toUpperCase();
-
-        if (peer) peer.destroy();
-        myP2pId = "CLIENT-" + randomP2PId();
-        isHost = false;
-
-        capNhatUIP2P("connecting", "Truy tìm Trưởng Nhóm...");
-        document.getElementById("p2p-my-id").innerText = myP2pId.replace(
-          "CLIENT-",
-          "",
-        );
-        document
-          .getElementById("p2p-actions")
-          .classList.add("opacity-50", "pointer-events-none");
-
-        peer = new Peer(myP2pId, {
-          host: "peerjs.com",
-          port: 443,
-          path: "/",
-          secure: true,
-          pingInterval: 5000,
-          config: {
-            iceServers: [
-              { urls: "stun:stun.l.google.com:19302" },
-              { urls: "stun:stun1.l.google.com:19302" },
-              { urls: "stun:stun.cloudflare.com:3478" },
-              { urls: "stun:openrelay.metered.ca:80" },
-              { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
-              { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" }
-            ]
-          }
-        });
-
-        // ⏱️ Timeout 15s: Chống treo máy nếu rớt mạng hoặc Host chưa bật
-        let p2pTimeout = setTimeout(() => {
-          if (!p2pConnection || !p2pConnection.open) {
-            document.getElementById("p2p-actions").classList.remove("opacity-50", "pointer-events-none");
-            capNhatTrangThai(
-              `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Hết giờ! Máy Trưởng Nhóm chưa bật hoặc sai mã.`,
-              "error"
-            );
-            capNhatUIP2P("disconnected", "Lỗi Mạng/Mã");
-            if (peer) peer.destroy();
-          }
-        }, 15000);
-
-        peer.on("open", (id) => {
-          let myName = localStorage.getItem("currentUser_diemdanh") || myP2pId;
-          p2pConnection = peer.connect(hostId, { metadata: { name: myName } });
-
-          p2pConnection.on("open", () => {
-            clearTimeout(p2pTimeout);
-            capNhatUIP2P("connected", "Đã Kết Nối Host", 1);
-            renderPeerListUI();
-            document
-              .getElementById("p2p-actions")
-              .classList.remove("opacity-50", "pointer-events-none");
-
-            guiDongBoP2P(); // Báo cáo điểm danh của mình lên
-          });
-
-          p2pConnection.on("data", (payload) => {
-            if (payload.type === "WELCOME") {
-              capNhatTrangThai(
-                `<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i> Đã kết nối thành công với <b class="text-slate-800">${payload.hostName}</b>!`,
-                "success",
-              );
-              tienHanhGopDuLieu(payload.data);
-            } else if (payload.type === "SYNC") {
-              tienHanhGopDuLieu(payload.data);
-            } else if (payload.type === "ERROR") {
-              alert(payload.msg);
-            }
-          });
-
-          p2pConnection.on("close", () => {
-            capNhatUIP2P("disconnected", "Mất Liên Lạc");
-            p2pConnection = null;
-            document
-              .getElementById("p2p-actions")
-              .classList.remove("opacity-50", "pointer-events-none");
-            capNhatTrangThai(
-              `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Hệ thống P2P đã bị ngắt.`,
-              "error",
-            );
-          });
-        });
-
-        peer.on("error", (err) => {
+        p2pConnection.on("open", () => {
           clearTimeout(p2pTimeout);
+          capNhatUIP2P("connected", "Đã Kết Nối Host", 1);
+          renderPeerListUI();
           document
             .getElementById("p2p-actions")
             .classList.remove("opacity-50", "pointer-events-none");
-          let errMsg = "Không tìm thấy Mã Trưởng Nhóm hoặc lỗi kết nối!";
-          if (err.type === "peer-unavailable") errMsg = "Không tìm thấy Mã Trưởng Nhóm! Kiểm tra lại mã hoặc nhờ Trưởng Nhóm tạo phòng mới.";
-          else if (err.type === "network") errMsg = "Mất mạng hoặc server bận! Kiểm tra WiFi rồi thử lại.";
-          else if (err.type === "server-error") errMsg = "Server PeerJS đang bận! Thử lại sau vài giây nhé anh Hoàng.";
+
+          guiDongBoP2P(); // Báo cáo điểm danh của mình lên
+        });
+
+        p2pConnection.on("data", (payload) => {
+          if (payload.type === "WELCOME") {
+            capNhatTrangThai(
+              `<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i> Đã kết nối thành công với <b class="text-slate-800">${payload.hostName}</b>!`,
+              "success",
+            );
+            tienHanhGopDuLieu(payload.data);
+          } else if (payload.type === "SYNC") {
+            tienHanhGopDuLieu(payload.data);
+          } else if (payload.type === "ERROR") {
+            alert(payload.msg);
+          }
+        });
+
+        p2pConnection.on("close", () => {
+          capNhatUIP2P("disconnected", "Mất Liên Lạc");
+          p2pConnection = null;
+          document
+            .getElementById("p2p-actions")
+            .classList.remove("opacity-50", "pointer-events-none");
           capNhatTrangThai(
-            `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> ${errMsg}`,
+            `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> Hệ thống P2P đã bị ngắt.`,
             "error",
           );
-          capNhatUIP2P("disconnected", "Sai Code/Lỗi");
         });
-      }
+      });
 
-      // Logic Broadcast / Gửi Đi
-      function guiDongBoP2P(nguoiTreo = null) {
-        if (isHost && p2pClients.length > 0) {
-          p2pClients.forEach((conn) => {
-            if (conn.peer !== nguoiTreo) {
-              try {
-                conn.send({ type: "SYNC", data: danhSachSinhVien });
-              } catch (e) {}
-            }
-          });
-        } else if (!isHost && p2pConnection) {
-          try {
-            p2pConnection.send({ type: "SYNC", data: danhSachSinhVien });
-          } catch (e) {}
-        }
-      }
+      peer.on("error", (err) => {
+        clearTimeout(p2pTimeout);
+        document
+          .getElementById("p2p-actions")
+          .classList.remove("opacity-50", "pointer-events-none");
+        let errMsg = "Không tìm thấy Mã Trưởng Nhóm hoặc lỗi kết nối!";
+        if (err.type === "peer-unavailable") errMsg = "Không tìm thấy Mã Trưởng Nhóm! Kiểm tra lại mã hoặc nhờ Trưởng Nhóm tạo phòng mới.";
+        else if (err.type === "network") errMsg = "Mất mạng hoặc server bận! Kiểm tra WiFi rồi thử lại.";
+        else if (err.type === "server-error") errMsg = "Server PeerJS đang bận! Thử lại sau vài giây nhé anh Hoàng.";
+        capNhatTrangThai(
+          `<i class="ph-fill ph-warning-circle text-rose-500 text-lg"></i> ${errMsg}`,
+          "error",
+        );
+        capNhatUIP2P("disconnected", "Sai Code/Lỗi");
+      });
+    }
 
-      // Logic Merge / Gộp dữ liệu
-      function tienHanhGopDuLieu(danhSachP2P) {
-        let coThayDoi = false;
-        for (let i = 0; i < danhSachSinhVien.length; i++) {
-          if (!danhSachSinhVien[i].daDen && danhSachP2P[i].daDen) {
-            danhSachSinhVien[i].daDen = true;
-            danhSachSinhVien[i].daDiemDanhBoi =
-              danhSachP2P[i].daDiemDanhBoi || "một cán bộ khác";
-            coThayDoi = true;
-          } else if (
-            danhSachSinhVien[i].daDen &&
-            danhSachP2P[i].daDen &&
-            danhSachP2P[i].daDiemDanhBoi &&
-            !danhSachSinhVien[i].daDiemDanhBoi
-          ) {
-            danhSachSinhVien[i].daDiemDanhBoi = danhSachP2P[i].daDiemDanhBoi;
+    // Logic Broadcast / Gửi Đi
+    function guiDongBoP2P(nguoiTreo = null) {
+      if (isHost && p2pClients.length > 0) {
+        p2pClients.forEach((conn) => {
+          if (conn.peer !== nguoiTreo) {
+            try {
+              conn.send({ type: "SYNC", data: danhSachSinhVien });
+            } catch (e) { }
           }
-        }
-        if (coThayDoi) {
-          renderDanhSach();
-          capNhatTrangThai(
-            `<i class="ph-fill ph-arrows-clockwise text-blue-500 text-lg animate-spin"></i> Dữ liệu vừa được cập nhật tức thời từ mạng P2P!`,
-            "info",
-          );
+        });
+      } else if (!isHost && p2pConnection) {
+        try {
+          p2pConnection.send({ type: "SYNC", data: danhSachSinhVien });
+        } catch (e) { }
+      }
+    }
+
+    // Logic Merge / Gộp dữ liệu
+    function tienHanhGopDuLieu(danhSachP2P) {
+      let coThayDoi = false;
+      for (let i = 0; i < danhSachSinhVien.length; i++) {
+        if (!danhSachSinhVien[i].daDen && danhSachP2P[i].daDen) {
+          danhSachSinhVien[i].daDen = true;
+          danhSachSinhVien[i].daDiemDanhBoi =
+            danhSachP2P[i].daDiemDanhBoi || "một cán bộ khác";
+          coThayDoi = true;
+        } else if (
+          danhSachSinhVien[i].daDen &&
+          danhSachP2P[i].daDen &&
+          danhSachP2P[i].daDiemDanhBoi &&
+          !danhSachSinhVien[i].daDiemDanhBoi
+        ) {
+          danhSachSinhVien[i].daDiemDanhBoi = danhSachP2P[i].daDiemDanhBoi;
         }
       }
-    </script>
-  </body>
+      if (coThayDoi) {
+        renderDanhSach();
+        capNhatTrangThai(
+          `<i class="ph-fill ph-arrows-clockwise text-blue-500 text-lg animate-spin"></i> Dữ liệu vừa được cập nhật tức thời từ mạng P2P!`,
+          "info",
+        );
+      }
+    }
+  </script>
+</body>
+
 </html>
